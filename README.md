@@ -9,6 +9,11 @@ App for rapportering av tilgjengelighet fra team på NAV sine sider. For api doc
 - docker-compose er installert
 - Java 21 er installert
 
+### Bygge prosjektet
+```
+mvn clean install
+```
+
 Default verdi på dev-logging er DEBUG, kan endres i [logback-dev.xml](app/src/main/resources/logback-dev.xml)
 
 ### Kjøre appen lokalt
