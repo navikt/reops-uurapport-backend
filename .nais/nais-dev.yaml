@@ -26,10 +26,10 @@ spec:
     path: /open/metrics
   tokenx:
     enabled: true
-#  accessPolicy:
-#    inbound:
-#      rules:
-#        - application: "accessibility-reporting-tool-frontend"
+  accessPolicy:
+    inbound:
+      rules:
+        - application: "reops-accessibility-reporting-tool-frontend"
   azure:
     application:
       enabled: true

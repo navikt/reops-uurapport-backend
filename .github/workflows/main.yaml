@@ -24,9 +24,20 @@ jobs:
       id-token: write
     steps:
       - uses: "actions/checkout@v4"
-
-      # TODO: Add any build steps here (e.g., Node.js setup, dependency installation, compilation)
-
+      - name: JDK
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '25'
+          cache: 'maven'
+      - name: Build
+        run: mvn clean package --batch-mode --settings ./.mvn/settings.xml
+      - name: Login to GitHub Packages Docker Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       - name: "Build and push"
         uses: nais/docker-build-push@v0
         id: docker-build-push
@@ -34,6 +45,8 @@ jobs:
           team: team-researchops
           identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
+          build_args: |
+            JAR_PATH=target/app.jar
 
     outputs:
       image: ${{ steps.docker-build-push.outputs.image }}

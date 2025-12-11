@@ -1,10 +1,9 @@
-FROM openjdk:21-alpine as builder
-COPY . .
-RUN ./gradlew build -i -x test
+FROM gcr.io/distroless/java25
+LABEL maintainer="team-researchops"
 
-FROM gcr.io/distroless/java17-debian11
-COPY --from=builder app/build/libs/app-all.jar app/app.jar
-ENV PORT=8080
-EXPOSE $PORT
-WORKDIR app
-CMD ["app.jar"]
+ARG JAR_PATH
+
+ADD $JAR_PATH /app/app.jar
+
+EXPOSE 8080
+CMD ["/app/app.jar"]

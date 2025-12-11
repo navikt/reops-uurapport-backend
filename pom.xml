@@ -334,7 +334,7 @@
                                     </excludes>
                                 </filter>
                             </filters>
-                            <finalName>${project.artifactId}-${project.version}-jar-with-dependencies</finalName>
+                            <finalName>app</finalName>
                         </configuration>
                     </execution>
                 </executions>
