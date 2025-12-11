@@ -55,6 +55,10 @@ Default verdi på dev-logging er DEBUG, kan endres i [logback-dev.xml](app/src/m
       curl http://localhost:8787/api/teams \
         -H "Authorization: Bearer <ditt-token>'    
     ```
+#### Example miljøvariabler for lokal kjøring
+```
+ADMINS=carl@good.morning;AZURE_APP_CLIENT_ID=a11y;AZURE_APP_WELL_KNOWN_URL=http://host.docker.internal:8080/issueissue/.well-known/openid-configuration;CALL_LOGGING_LEVEL=DEBUG;CORS_ALLOWED_ORIGIN=*;DB_DATABASE=a11y;DB_HOST=localhost;DB_PASSWORD=a11y;DB_PORT=5432;DB_USERNAME=postgres;PORT=8787
+```
 
 ### Oppdatere apidocs
 Apiet er beskrevet i filen [documentation.yaml](app/src/main/resources/static/openapi/documentation.yaml)
