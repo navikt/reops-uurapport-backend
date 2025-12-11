@@ -1,26 +1,79 @@
-name: Build and deploy
+name: "Deploy"
+run-name: "Deploy ${{ github.event_name == 'push' && 'Dev' || github.event.inputs.environment == 'prod' && 'Prod' || 'Dev' }}"
 on:
   push:
     branches:
-      - main
+      - "main"
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Environment to deploy to"
+        required: true
+        type: choice
+        options:
+          - dev
+          - prod
+
 jobs:
-  build_and_deploy:
-    name: Build, push and deploy
-    runs-on: ubuntu-latest
+  build:
+    name: "build"
+    runs-on: "ubuntu-latest"
     permissions:
+      packages: write
       contents: read
       id-token: write
-      actions: read
     steps:
-      - uses: actions/checkout@v4
-      - name: Build and push image and SBOM to OCI registry
+      - uses: "actions/checkout@v4"
+
+      # TODO: Add any build steps here (e.g., Node.js setup, dependency installation, compilation)
+
+      - name: "Build and push"
         uses: nais/docker-build-push@v0
         id: docker-build-push
         with:
           team: team-researchops
-      - name: Deploy to Nais
-        uses: nais/deploy/actions/deploy@v2
+          identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
+          project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
+
+    outputs:
+      image: ${{ steps.docker-build-push.outputs.image }}
+
+  deploy-dev:
+    if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'dev')
+    needs: build
+    runs-on: "ubuntu-latest"
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: "actions/checkout@v4"
+      - name: "Deploy to Dev"
+        uses: "nais/deploy/actions/deploy@v2"
         env:
-          CLUSTER: dev-gcp
-          RESOURCE: .nais/app.yaml
-          VAR: image=${{ steps.docker-build-push.outputs.image }} #
+          CLUSTER: "dev-gcp"
+          RESOURCE: .nais/nais-dev.yaml
+          VAR: image=${{ needs.build.outputs.image }},version=${{ github.sha }}
+
+#  deploy-prod:
+#    if: github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'prod'
+#    needs: build
+#    runs-on: "ubuntu-latest"
+#    permissions:
+#      contents: write
+#      id-token: write
+#    steps:
+#      - uses: "actions/checkout@v4"
+#      - name: "Deploy to Prod"
+#        uses: "nais/deploy/actions/deploy@v2"
+#        env:
+#          CLUSTER: "prod-gcp"
+#          RESOURCE: .nais/nais-prod.yaml
+#          VAR: image=${{ needs.build.outputs.image }},version=${{ github.sha }}
+#      - name: "Create deployment tag"
+#        if: success()
+#        run: |
+#          git config user.name "github-actions[bot]"
+#          git config user.email "github-actions[bot]@users.noreply.github.com"
+#          TAG_NAME="prod-$(date -u +'%Y.%m.%d-%H%M%S')"
+#          git tag -a "$TAG_NAME" -m "Production deployment of ${{ github.sha }}"
+#          git push origin "$TAG_NAME"
