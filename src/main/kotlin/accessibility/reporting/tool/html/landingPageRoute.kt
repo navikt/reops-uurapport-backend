@@ -55,8 +55,8 @@ object NewPage {
     val url = resolveNewPageUrl()
     private fun resolveNewPageUrl(): String =
         when (System.getenv("NAIS_CLUSTER_NAME")) {
-            "prod-gcp" -> "https://a11y-statement-ny.ansatt.nav.no/"
-            "dev-gcp" -> "https://a11y-statement-ny.ansatt.dev.nav.no/"
-            else -> "https://a11y-statement-ny.ansatt.dev.nav.no/"
+            "prod-gcp" -> "https://reops-a11y-statement-ny.ansatt.nav.no/"
+            "dev-gcp" -> "https://reops-a11y-statement.ansatt.dev.nav.no/"
+            else -> "https://reops-a11y-statement.ansatt.dev.nav.no/"
         }
 }
