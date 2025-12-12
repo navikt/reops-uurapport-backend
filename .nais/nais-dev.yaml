@@ -47,16 +47,14 @@ spec:
         - /api/**
   gcp:
     sqlInstances:
-      - name: a11y-statement
-        type: POSTGRES_18
+      - type: POSTGRES_18
         tier: db-custom-1-4096
         diskType: SSD
         diskSize: 10
         diskAutoresize: true
         autoBackupHour: 3
         databases:
-          - name: a11y-statement
-            envVarPrefix: DB
+          - name: reops-a11y-statement
         maintenance:
           day: 1
           hour: 4
@@ -82,12 +80,12 @@ spec:
 #    - name: AZURE_OPENID_CONFIG_ISSUER
 #      value: "$(AZURE_OPENID_CONFIG_ISSUER)"
     - name: DB_HOST
-      value: "$(NAIS_DATABASE_A11Y_STATEMENT_A11Y_STATEMENT_HOST)"
+      value: "$(NAIS_DATABASE_REOPS_A11Y_STATEMENT_REOPS_A11Y_STATEMENT_HOST)"
     - name: DB_PORT
-      value: "$(NAIS_DATABASE_A11Y_STATEMENT_A11Y_STATEMENT_PORT)"
+      value: "$(NAIS_DATABASE_REOPS_A11Y_STATEMENT_REOPS_A11Y_STATEMENT_PORT)"
     - name: DB_DATABASE
-      value: "$(NAIS_DATABASE_A11Y_STATEMENT_A11Y_STATEMENT_DB_DATABASE)"
+      value: "$(NAIS_DATABASE_REOPS_A11Y_STATEMENT_REOPS_A11Y_STATEMENT_DATABASE)"
     - name: DB_USERNAME
-      value: "$(NAIS_DATABASE_A11Y_STATEMENT_A11Y_STATEMENT_DB_USERNAME)"
+      value: "$(NAIS_DATABASE_REOPS_A11Y_STATEMENT_REOPS_A11Y_STATEMENT_DB_USERNAME)"
     - name: DB_PASSWORD
-      value: "$(NAIS_DATABASE_A11Y_STATEMENT_A11Y_STATEMENT_DB_PASSWORD)"
+      value: "$(NAIS_DATABASE_REOPS_A11Y_STATEMENT_REOPS_A11Y_STATEMENT_DB_PASSWORD)"
