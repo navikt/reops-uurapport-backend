@@ -162,25 +162,21 @@ fun allRoutes(root: Route): List<Route> {
 }
 
 class Environment(
-    environment: String = System.getenv("ENVIRONMENT") ?: "local",
-    dbHost: String = System.getenv("DB_HOST"),
-    dbPort: String = System.getenv("DB_PORT"),
-    dbName: String = System.getenv("DB_DATABASE"),
+    val environment: String = System.getenv("ENVIRONMENT") ?: "local",
+    val dbHost: String = System.getenv("DB_HOST"),
+    val dbPort: String = System.getenv("DB_PORT"),
+    val dbName: String = System.getenv("DB_DATABASE"),
     val dbUser: String = System.getenv("DB_USERNAME"),
     val dbPassword: String = System.getenv("DB_PASSWORD"),
     val corsAllowedOrigin: List<String> = System.getenv("CORS_ALLOWED_ORIGIN").split(",")
 ) {
     val dbUrl: String = if (environment == "local") {
-        if (dbHost.endsWith(":$dbPort")) {
-            "jdbc:postgresql://${dbHost}/$dbName"
-        } else {
-            "jdbc:postgresql://${dbHost}:${dbPort}/${dbName}"
-        }
+        "jdbc:postgresql://${dbHost}:${dbPort}/${dbName}"
     } else {
-        val sslRootCert = System.getenv("SSLROOTCERT")
-        val sslCert = System.getenv("SSLCERT")
-        val sslKey = System.getenv("SSLKEY")
-        val sslMode = System.getenv("SSLMODE")
+        val sslRootCert = System.getenv("SSLROOTCERT") ?: throw IllegalArgumentException("SSLROOTCERT not set")
+        val sslCert = System.getenv("SSLCERT") ?: throw IllegalArgumentException("SSLCERT not set")
+        val sslKey = System.getenv("SSLKEY") ?: throw IllegalArgumentException("SSLKEY not set")
+        val sslMode = System.getenv("SSLMODE") ?: throw IllegalArgumentException("SSLKEY not set")
         "jdbc:postgresql://${dbUser}:${dbPassword}@${dbHost}:${dbPort}/${dbName}" +
                 "?sslmode=$sslMode&sslrootcert=$sslRootCert&sslcert=$sslCert&sslkey=$sslKey"
     }
