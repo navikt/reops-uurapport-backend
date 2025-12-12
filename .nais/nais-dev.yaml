@@ -73,12 +73,6 @@ spec:
       value: "07bca51b-e5dc-484a-ac09-685e61244b6b"
     - name: CORS_ALLOWED_ORIGIN
       value: "*.ansatt.dev.nav.no,*.ekstern.dev.nav.no"
-#    - name: AZURE_APP_CLIENT_ID // tror disse blir automatisk satt av miljøet
-#      value: "$(AZURE_APP_CLIENT_ID)"
-#    - name: AZURE_APP_WELL_KNOWN_URL
-#      value: "$(AZURE_APP_WELL_KNOWN_URL)"
-#    - name: AZURE_OPENID_CONFIG_ISSUER
-#      value: "$(AZURE_OPENID_CONFIG_ISSUER)"
     - name: DB_HOST
       value: "$(NAIS_DATABASE_REOPS_A11Y_STATEMENT_REOPS_A11Y_STATEMENT_HOST)"
     - name: DB_PORT
@@ -86,6 +80,6 @@ spec:
     - name: DB_DATABASE
       value: "$(NAIS_DATABASE_REOPS_A11Y_STATEMENT_REOPS_A11Y_STATEMENT_DATABASE)"
     - name: DB_USERNAME
-      value: "$(NAIS_DATABASE_REOPS_A11Y_STATEMENT_REOPS_A11Y_STATEMENT_DB_USERNAME)"
+      value: "$(NAIS_DATABASE_REOPS_A11Y_STATEMENT_REOPS_A11Y_STATEMENT_USERNAME)"
     - name: DB_PASSWORD
-      value: "$(NAIS_DATABASE_REOPS_A11Y_STATEMENT_REOPS_A11Y_STATEMENT_DB_PASSWORD)"
+      value: "$(NAIS_DATABASE_REOPS_A11Y_STATEMENT_REOPS_A11Y_STATEMENT_PASSWORD)"
