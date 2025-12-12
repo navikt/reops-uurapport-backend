@@ -173,13 +173,6 @@ class Environment(
     val dbUrl: String = if (environment == "local") {
         "jdbc:postgresql://${dbHost}:${dbPort}/${dbName}"
     } else {
-        val sslRootCert = System.getenv("SSLROOTCERT") ?: throw IllegalArgumentException("SSLROOTCERT not set")
-        val sslCert = System.getenv("SSLCERT") ?: throw IllegalArgumentException("SSLCERT not set")
-        val sslKey = System.getenv("SSLKEY") ?: throw IllegalArgumentException("SSLKEY not set")
-        val sslMode = System.getenv("SSLMODE") ?: throw IllegalArgumentException("SSLMODE not set")
-        "jdbc:postgresql://${dbHost}:${dbPort}/${dbName}" +
-                "?user=$dbUser&password=$dbPassword" +
-                "&sslmode=$sslMode&sslrootcert=$sslRootCert&sslcert=$sslCert&sslkey=$sslKey"
+        System.getenv("DATABASE_URL") ?: throw IllegalArgumentException("DATABASE_URL not set")
     }
-
 }
