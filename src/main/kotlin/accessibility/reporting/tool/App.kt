@@ -176,8 +176,10 @@ class Environment(
         val sslRootCert = System.getenv("SSLROOTCERT") ?: throw IllegalArgumentException("SSLROOTCERT not set")
         val sslCert = System.getenv("SSLCERT") ?: throw IllegalArgumentException("SSLCERT not set")
         val sslKey = System.getenv("SSLKEY") ?: throw IllegalArgumentException("SSLKEY not set")
-        val sslMode = System.getenv("SSLMODE") ?: throw IllegalArgumentException("SSLKEY not set")
-        "jdbc:postgresql://${dbUser}:${dbPassword}@${dbHost}:${dbPort}/${dbName}" +
-                "?sslmode=$sslMode&sslrootcert=$sslRootCert&sslcert=$sslCert&sslkey=$sslKey"
+        val sslMode = System.getenv("SSLMODE") ?: throw IllegalArgumentException("SSLMODE not set")
+        "jdbc:postgresql://${dbHost}:${dbPort}/${dbName}" +
+                "?user=$dbUser&password=$dbPassword" +
+                "&sslmode=$sslMode&sslrootcert=$sslRootCert&sslcert=$sslCert&sslkey=$sslKey"
     }
+
 }
