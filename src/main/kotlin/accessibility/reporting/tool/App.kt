@@ -163,11 +163,11 @@ fun allRoutes(root: Route): List<Route> {
 
 class Environment(
     val environment: String = System.getenv("ENVIRONMENT") ?: "local",
-    val dbHost: String = System.getenv("DB_HOST"),
-    val dbPort: String = System.getenv("DB_PORT"),
-    val dbName: String = System.getenv("DB_DATABASE"),
-    val dbUser: String = System.getenv("DB_USERNAME"),
-    val dbPassword: String = System.getenv("DB_PASSWORD"),
+    val dbHost: String = System.getenv("DB_HOST") ?: "",
+    val dbPort: String = System.getenv("DB_PORT") ?: "",
+    val dbName: String = System.getenv("DB_DATABASE") ?: "",
+    val dbUser: String = System.getenv("DB_USERNAME") ?: "",
+    val dbPassword: String = System.getenv("DB_PASSWORD") ?: "",
     val corsAllowedOrigin: List<String> = System.getenv("CORS_ALLOWED_ORIGIN").split(",")
 ) {
     val dbUrl: String = if (environment == "local") {
