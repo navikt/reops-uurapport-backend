@@ -29,7 +29,7 @@ Default verdi på dev-logging er DEBUG, kan endres i [logback-dev.xml](app/src/m
    - mock oauth2 server
    - redis
    - wonderwall (for å mocke kall til azure)
-2. sett miljøvariablene:
+2. sett miljøvariablene (eksempel lenger nede på verdier):
    - AZURE_APP_CLIENT_ID
    - AZURE_APP_WELL_KNOWN_URL
    - ADMINS
