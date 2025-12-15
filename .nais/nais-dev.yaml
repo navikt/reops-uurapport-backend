@@ -18,9 +18,9 @@ spec:
     min: 1
     max: 2
     cpuThresholdPercentage: 80
-  ingresses:
-    - "https://reops-a11y-statement.ekstern.dev.nav.no"
-    - "https://reops-a11y-statement.ansatt.dev.nav.no"
+#  ingresses:
+#    - "https://reops-a11y-statement.ekstern.dev.nav.no"
+#    - "https://reops-a11y-statement.ansatt.dev.nav.no"
   prometheus:
     enabled: true
     path: /open/metrics
