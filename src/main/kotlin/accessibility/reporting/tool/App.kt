@@ -6,8 +6,6 @@ import accessibility.reporting.tool.database.Flyway
 import accessibility.reporting.tool.database.OrganizationRepository
 import accessibility.reporting.tool.database.PostgresDatabase
 import accessibility.reporting.tool.database.ReportRepository
-import accessibility.reporting.tool.html.*
-import accessibility.reporting.tool.microfrontends.faqRoute
 import accessibility.reporting.tool.rest.*
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
@@ -32,6 +30,7 @@ import mu.KotlinLogging
 import org.slf4j.LoggerFactory
 import org.slf4j.event.Level
 import java.lang.IllegalArgumentException
+import io.ktor.server.routing.HttpMethodRouteSelector
 
 
 fun main() {
@@ -44,12 +43,15 @@ fun main() {
         Netty,
         port = System.getenv("PORT")?.toInt() ?: 8081,
         module = {
-            this.api(
+            api(
                 corsAllowedOrigins = environment.corsAllowedOrigin,
                 reportRepository = repository,
                 organizationRepository = organizationRepository,
-            ) { installAuthentication(authContext) }
-        }).start(
+            ) {
+                installAuthentication(authContext)
+            }
+        }
+    ).start(
         wait = true
     )
 }
@@ -130,12 +132,6 @@ fun Application.api(
     }
     routing {
         authenticate {
-            organizationUnits(organizationRepository =organizationRepository)
-            userRoute(reportRepository)
-            reports(reportRepository =reportRepository, organizationRepository =organizationRepository)
-            landingPage(reportRepository)
-            adminRoutes(reportRepository =reportRepository, organizationRepository =organizationRepository)
-            faqRoute()
             route("api") {
                 jsonApiReports(organizationRepository = organizationRepository, reportRepository = reportRepository)
                 jsonapiteams(organizationRepository = organizationRepository)
@@ -145,15 +141,14 @@ fun Application.api(
             }
         }
         meta(prometehusRegistry)
-        openReportRoute(reportRepository)
         staticResources("/static", "static") {
             preCompressed(CompressedFileType.GZIP)
         }
     }
 
     allRoutes(plugin(Routing))
-        .filter { it.selector is HttpMethodRouteSelector }
-        .forEach { println("route: $it") }
+        .filter { route: Route -> route.selector is HttpMethodRouteSelector }
+        .forEach { route: Route -> println("route: $route") }
 }
 
 

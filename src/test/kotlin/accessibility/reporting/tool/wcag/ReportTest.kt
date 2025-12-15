@@ -2,7 +2,6 @@ package accessibility.reporting.tool.wcag
 
 import accessibility.reporting.tool.authenitcation.User
 import accessibility.reporting.tool.database.Admins
-import accessibility.reporting.tool.html.toEmail
 import assert
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.date.shouldBeAfter
@@ -12,6 +11,8 @@ import io.mockk.mockkStatic
 import org.junit.jupiter.api.Test
 
 import java.util.UUID
+
+fun String.toEmail() = User.Email(this)
 
 class ReportTest {
     private val testOrg = OrganizationUnit.createNew(name = "Test organisasjonsenhet", email = "test@nav.no")

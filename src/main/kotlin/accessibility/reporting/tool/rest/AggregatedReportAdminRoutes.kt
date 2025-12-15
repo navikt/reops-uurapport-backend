@@ -2,7 +2,6 @@ package accessibility.reporting.tool.rest
 
 import accessibility.reporting.tool.authenitcation.user
 import accessibility.reporting.tool.database.ReportRepository
-import accessibility.reporting.tool.microfrontends.id
 import accessibility.reporting.tool.wcag.AggregatedReport
 import accessibility.reporting.tool.wcag.Report
 import accessibility.reporting.tool.wcag.ReportType
@@ -46,7 +45,7 @@ fun Route.aggregatedAdminRoutes(reportRepository: ReportRepository) {
         route("{id}") {
             patch {
                 val updateReportRequest = call.receive<AggregatedReportUpdateRequest>()
-                val id = call.id
+                val id = call.parameters["id"] ?: throw IllegalArgumentException("Missing report {id}")
                 val originalReport = reportRepository.getReport<AggregatedReport>(id)
                 val updatedReport = originalReport?.updatedWith(
                     title = updateReportRequest.descriptiveName,
@@ -59,7 +58,8 @@ fun Route.aggregatedAdminRoutes(reportRepository: ReportRepository) {
                 call.respond(HttpStatusCode.OK)
             }
             delete {
-                reportRepository.deleteReport(call.id)
+                val id = call.parameters["id"] ?: throw IllegalArgumentException("Missing report {id}")
+                reportRepository.deleteReport(id)
                 call.respond(HttpStatusCode.OK)
             }
         }

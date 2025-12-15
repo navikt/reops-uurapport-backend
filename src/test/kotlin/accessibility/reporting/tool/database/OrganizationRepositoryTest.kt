@@ -1,8 +1,8 @@
 package accessibility.reporting.tool.database
 
+import accessibility.reporting.tool.authenitcation.User
 import accessibility.reporting.tool.authenitcation.User.Email
 import accessibility.reporting.tool.dummyReportV4
-import accessibility.reporting.tool.html.toEmail
 import accessibility.reporting.tool.wcag.OrganizationUnit
 import accessibility.reporting.tool.wcag.Report
 import assert
@@ -211,3 +211,5 @@ private infix fun List<OrganizationUnit>.shouldContainOrganizationUnit(orgUnit: 
 
 private val List<OrganizationUnit>.names
     get() = this.map { it.name }
+
+fun String.toEmail() = User.Email(this)
