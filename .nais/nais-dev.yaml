@@ -72,7 +72,7 @@ spec:
     - name: PORT
       value: "8080"
     - name: ADMIN_GROUP
-      value: "07bca51b-e5dc-484a-ac09-685e61244b6b"
+      value: "95fa4c83-0d92-4aa0-83b0-c80487350318"
     - name: CORS_ALLOWED_ORIGIN
       value: "*.ansatt.dev.nav.no,*.ekstern.dev.nav.no"
     - name: DATABASE_URL
