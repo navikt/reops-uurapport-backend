@@ -34,7 +34,7 @@ services:
                     "preferred_username": "carl@good.morning",
                     "oid": "carl@good.morning",
                     "preferred_username": "carl@good.morning", 
-                    "groups": ["admins"]
+                    "groups": ["test_admin"]
                   }
                 }
               ]
