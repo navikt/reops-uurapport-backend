@@ -15,8 +15,8 @@ spec:
     path: /isready
     initialDelay: 5
   replicas:
-    min: 1
-    max: 2
+    min: 2
+    max: 4
     cpuThresholdPercentage: 80
   ingresses:
     - "https://uurapport.ekstern.dev.nav.no"
