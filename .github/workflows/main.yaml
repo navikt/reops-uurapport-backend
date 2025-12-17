@@ -43,7 +43,6 @@ jobs:
       - name: Show image and SHA for later prod deploy
         run: |
           echo "========================================"
-          echo "Prod deploy inputs:"
           echo "image=${{ steps.docker-build-push.outputs.image }}"
           echo "version=${{ github.sha }}"
           echo "========================================"

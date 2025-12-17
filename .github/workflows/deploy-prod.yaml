@@ -5,11 +5,11 @@ on:
   workflow_dispatch:
     inputs:
       image:
-        description: "Image to deploy (from previous build)"
+        description: "Image to deploy"
         required: true
         type: string
       version:
-        description: "Version / git SHA"
+        description: "SHA"
         required: true
         type: string
 
