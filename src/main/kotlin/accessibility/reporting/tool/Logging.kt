@@ -9,7 +9,7 @@ import io.ktor.util.AttributeKey
 import org.slf4j.LoggerFactory
 
 private val StartNanosKey = AttributeKey<Long>("request-start-nanos")
-private val ignoredPaths = setOf("/isalive", "/open/metrics")
+private val ignoredPaths = setOf("/isalive", "/isready", "/open/metrics")
 
 val RequestLifecycleLogging = createApplicationPlugin("RequestLifecycleLogging") {
     val log = LoggerFactory.getLogger("HttpAccess")

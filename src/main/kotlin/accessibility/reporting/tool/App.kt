@@ -90,7 +90,7 @@ fun Application.api(
 
         filter { call ->
             val path = call.request.path()
-            path != "/isalive" && path != "/open/metrics"
+            path !in setOf("/isalive", "/isready", "/open/metrics")
         }
 
         format { call ->

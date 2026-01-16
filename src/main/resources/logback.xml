@@ -1,10 +1,8 @@
 <configuration>
-
     <property name="serviceName" value="uurapport-backend"/>
 
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="net.logstash.logback.encoder.LogstashEncoder">
-
             <customFields>{"service":"${serviceName}"}</customFields>
 
             <throwableConverter class="net.logstash.logback.stacktrace.ShortenedThrowableConverter">
@@ -21,19 +19,7 @@
         </encoder>
     </appender>
 
-    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-        <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
-            <evaluator class="ch.qos.logback.classic.boolex.JaninoEventEvaluator">
-                <expression>
-                    return !(message.contains("/isalive") || message.contains("/open/metrics"));
-                </expression>
-            </evaluator>
-            <OnMatch>DENY</OnMatch>
-            <OnMismatch>NEUTRAL</OnMismatch>
-        </filter>
-
-        <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
-    </appender>
+    <logger name="io.ktor.server.plugins.cors.CORS" level="OFF"/>
 
     <logger name="CallLogging" level="INFO" additivity="false">
         <appender-ref ref="STDOUT"/>
@@ -43,12 +29,7 @@
         <appender-ref ref="STDOUT"/>
     </logger>
 
-    <logger name="io.ktor.server.plugins.cors.CORS" level="WARN" additivity="false">
-        <appender-ref ref="STDOUT"/>
-    </logger>
-
     <root level="INFO">
         <appender-ref ref="STDOUT"/>
     </root>
-
 </configuration>
