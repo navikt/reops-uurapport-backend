@@ -17,6 +17,7 @@ import io.ktor.server.engine.*
 import io.ktor.server.http.content.*
 import io.ktor.server.netty.*
 import io.ktor.server.plugins.*
+import io.ktor.server.plugins.callid.*
 import io.ktor.server.plugins.calllogging.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.cors.routing.*
@@ -29,8 +30,7 @@ import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import mu.KotlinLogging
 import org.slf4j.LoggerFactory
 import org.slf4j.event.Level
-import java.lang.IllegalArgumentException
-
+import java.util.UUID
 
 fun main() {
     val environment = Environment()
@@ -50,11 +50,8 @@ fun main() {
                 installAuthentication(authContext)
             }
         }
-    ).start(
-        wait = true
-    )
+    ).start(wait = true)
 }
-
 
 fun Application.api(
     corsAllowedOrigins: List<String>,
@@ -64,26 +61,31 @@ fun Application.api(
     authInstaller: Application.() -> Unit
 ) {
     val prometehusRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
+    val log = KotlinLogging.logger {}
 
-    val log = KotlinLogging.logger { }
     authInstaller()
 
-    //TODO: Finn ut av metricsbug
-    /*install(MicrometerMetrics) {
-        registry = prometehusRegistry
-    }*/
     install(ContentNegotiation) {
         jackson {
             registerModule(JavaTimeModule())
             configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
         }
     }
-
+    install(CallId) {
+        retrieveFromHeader(HttpHeaders.XRequestId)
+        generate { UUID.randomUUID().toString() }
+        verify { it.length in 8..128 }
+        replyToHeader(HttpHeaders.XRequestId)
+    }
+    install(RequestLifecycleLogging)
     install(CallLogging) {
         level = Level.INFO
         logger = LoggerFactory.getLogger("CallLogging")
+
+        mdc("callId") { call -> call.callId }
         mdc("method") { call -> call.request.httpMethod.value }
         mdc("uri") { call -> call.request.uri }
+
         format { call ->
             "${call.request.httpMethod.value} ${call.request.uri} -> ${call.response.status() ?: "unhandled"}"
         }
@@ -103,33 +105,37 @@ fun Application.api(
 
     install(StatusPages) {
         exception<Throwable> { call, cause ->
-            when (cause) {
-                is IllegalArgumentException -> {
-                    log.debug { "Feil i request fra bruker: ${cause.message}" }
-                    call.respondText(status = HttpStatusCode.BadRequest, text = cause.message ?: "Bad request")
-                }
+            val method = call.request.httpMethod.value
+            val uri = call.request.uri
+            val callId = call.callId
 
+            when (cause) {
+                is IllegalArgumentException,
                 is BadRequestException -> {
-                    log.debug(cause.message)
-                    call.respondText(status = HttpStatusCode.BadRequest, text = cause.message ?: "Bad request")
+                    log.warn(cause) { "4xx method=$method uri=$uri callId=$callId msg=${cause.message}" }
+                    call.respondText(
+                        status = HttpStatusCode.BadRequest,
+                        text = cause.message ?: "Bad request"
+                    )
                 }
 
                 is RequestException -> {
-                    log.error(cause) { cause.message }
+                    log.error(cause) { "RequestException method=$method uri=$uri callId=$callId" }
                     call.respondText(status = cause.responseStatus, text = cause.message!!)
                 }
 
                 else -> {
-                    log.error(cause) { "Feil i request fra bruker: ${cause.message}" }
-                    log.error { "Ukjent feil: ${cause.message}" }
-                    log.error { cause.stackTrace.contentToString() }
-                    call.respondText(text = "500: ${cause.message}", status = HttpStatusCode.InternalServerError)
-
+                    log.error(cause) { "5xx method=$method uri=$uri callId=$callId" }
+                    call.respondText(
+                        status = HttpStatusCode.InternalServerError,
+                        text = "500: Internal server error"
+                    )
                 }
             }
         }
     }
-    val installedRouting = routing {
+
+    routing {
         authenticate {
             route("api") {
                 jsonApiReports(organizationRepository = organizationRepository, reportRepository = reportRepository)
@@ -139,15 +145,14 @@ fun Application.api(
                 jsonApiAggregatedReports(reportRepository = reportRepository)
             }
         }
+
         meta(prometehusRegistry)
+
         staticResources("/static", "static") {
             preCompressed(CompressedFileType.GZIP)
         }
     }
-
-    installedRouting.toString() // retain reference to avoid unused warnings if logging reintroduced later
 }
-
 
 class Environment(
     val environment: String = System.getenv("ENVIRONMENT") ?: "local",

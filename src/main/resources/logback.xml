@@ -1,15 +1,36 @@
-<configuration debug="true">
-    <statusListener class="ch.qos.logback.core.status.OnConsoleStatusListener"/>
+<configuration>
 
-    <property name="loggingPattern"
-              value="%d [%-5level] [%thread] %logger{5} %replace(- [%X{consumerId}, %X{callId}, %X{userId}] ){'- \[, , \] ',''}- %m%n"/>
-    <appender name="stdout_json" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
+    <property name="serviceName" value="uurapport-backend"/>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+
+            <customFields>{"service":"${serviceName}"}</customFields>
+
+            <throwableConverter class="net.logstash.logback.stacktrace.ShortenedThrowableConverter">
+                <maxDepthPerThrowable>200</maxDepthPerThrowable>
+                <maxLength>20000</maxLength>
+                <rootCauseFirst>true</rootCauseFirst>
+            </throwableConverter>
+
+            <includeMdcKeyName>callId</includeMdcKeyName>
+            <includeMdcKeyName>method</includeMdcKeyName>
+            <includeMdcKeyName>uri</includeMdcKeyName>
+            <includeMdcKeyName>userId</includeMdcKeyName>
+            <includeMdcKeyName>consumerId</includeMdcKeyName>
+        </encoder>
     </appender>
+
     <logger name="CallLogging" level="INFO" additivity="false">
-        <appender-ref ref="stdout_json"/>
+        <appender-ref ref="STDOUT"/>
     </logger>
+
+    <logger name="HttpAccess" level="INFO" additivity="false">
+        <appender-ref ref="STDOUT"/>
+    </logger>
+
     <root level="INFO">
-        <appender-ref ref="stdout_json"/>
+        <appender-ref ref="STDOUT"/>
     </root>
+
 </configuration>

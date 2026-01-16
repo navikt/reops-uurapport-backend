@@ -114,6 +114,11 @@
 			<artifactId>ktor-server-call-logging-jvm</artifactId>
 			<version>${ktor.version}</version>
 		</dependency>
+        <dependency>
+            <groupId>io.ktor</groupId>
+            <artifactId>ktor-server-call-id-jvm</artifactId>
+            <version>${ktor.version}</version>
+        </dependency>
 
         <!-- Flyway -->
         <dependency>
