@@ -77,14 +77,21 @@ fun Application.api(
         verify { it.length in 8..128 }
         replyToHeader(HttpHeaders.XRequestId)
     }
+
     install(RequestLifecycleLogging)
+
     install(CallLogging) {
         level = Level.INFO
         logger = LoggerFactory.getLogger("CallLogging")
 
-        mdc("callId") { call -> call.callId }
-        mdc("method") { call -> call.request.httpMethod.value }
-        mdc("uri") { call -> call.request.uri }
+        mdc("callId") { it.callId }
+        mdc("method") { it.request.httpMethod.value }
+        mdc("uri") { it.request.uri }
+
+        filter { call ->
+            val path = call.request.path()
+            path != "/isalive" && path != "/open/metrics"
+        }
 
         format { call ->
             "${call.request.httpMethod.value} ${call.request.uri} -> ${call.response.status() ?: "unhandled"}"
