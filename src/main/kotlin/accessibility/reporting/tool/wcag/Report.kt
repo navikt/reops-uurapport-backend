@@ -165,7 +165,7 @@ data class OrganizationUnit(
     val email: String,
     val members: MutableSet<String> = mutableSetOf()
 ) {
-    fun isMember(user: User) = members.any { it == user.email.str().comparable() }
+    fun isMember(user: User) = members.any { it.comparable() == user.email.str().comparable() }
     fun addMember(userEmail: User.Email) = members.add(userEmail.str().comparable())
     fun removeMember(userEmail: String) = members.removeIf { userEmail.comparable() == it.comparable() }
     fun update(updateValues: TeamUpdate) = copy(
@@ -206,7 +206,9 @@ data class OrganizationUnit(
 
     private fun String.comparable(): String = trimIndent().lowercase()
     fun hasWriteAccess(user: User): Boolean =
-        user.email.str() == email || Admins.isAdmin(user) || members.any { it == user.email.str() }
+        user.email.str().comparable() == email.comparable() || Admins.isAdmin(user) || members.any {
+            it.comparable() == user.email.str().comparable()
+        }
 }
 
 enum class ReportType {
