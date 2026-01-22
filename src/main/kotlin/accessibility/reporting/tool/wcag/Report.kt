@@ -78,15 +78,12 @@ open class Report(
     )
 
     fun updateCriteria(criteria: List<SuccessCriterion>, updateBy: User): Report = copy(
-        successCriteria = criteria,
-        lastChanged = LocalDateTimeHelper.nowAtUtc(),
-        lastUpdatedBy = updateBy.toAuthor()
+        successCriteria = criteria, lastChanged = LocalDateTimeHelper.nowAtUtc(), lastUpdatedBy = updateBy.toAuthor()
     ).apply {
         if (!isOwner(updateBy)) contributors.add(updateBy.toAuthor())
     }
 
-    open fun toJson(): String =
-        objectMapper.writeValueAsString(this)
+    open fun toJson(): String = objectMapper.writeValueAsString(this)
 
     fun updateCriterion(
         criterionNumber: String,
@@ -103,9 +100,8 @@ open class Report(
         ).apply { wcagLevel = criteria.wcagLevel }
     }
 
-    fun findCriterion(criterionNumber: String) =
-        successCriteria.find { it.number == criterionNumber }
-            ?: throw IllegalArgumentException("Criteria with number $criterionNumber does not exists")
+    fun findCriterion(criterionNumber: String) = successCriteria.find { it.number == criterionNumber }
+        ?: throw IllegalArgumentException("Criteria with number $criterionNumber does not exists")
 
     open fun withUpdatedCriterion(criterion: SuccessCriterion, updateBy: User): Report = copy(
         successCriteria = successCriteria.map { if (it.number == criterion.number) criterion else it },
@@ -130,8 +126,7 @@ open class Report(
         notes = notes ?: this.notes
     ).apply { if (!isOwner(updateBy)) contributors.add(updateBy.toAuthor()) }
 
-    fun isOwner(callUser: User): Boolean =
-        author.oid == callUser.oid.str()
+    fun isOwner(callUser: User): Boolean = author.oid == callUser.oid.str()
 
     fun writeAccess(user: User?): Boolean = when {
         user == null -> false
@@ -160,26 +155,40 @@ open class Report(
 }
 
 data class OrganizationUnit(
-    val id: String,
-    val name: String,
-    val email: String,
-    val members: MutableSet<String> = mutableSetOf()
+    val id: String, val name: String, val email: String, val members: MutableSet<String> = mutableSetOf()
 ) {
-    fun isMember(user: User) = members.any { it.comparable() == user.email.str().comparable() }
-    fun addMember(userEmail: User.Email) = members.add(userEmail.str().comparable())
-    fun removeMember(userEmail: String) = members.removeIf { userEmail.comparable() == it.comparable() }
+    private fun String.normalizeEmail(): String = trim().lowercase()
+
+    fun isMember(user: User): Boolean {
+        val userEmail = user.email.str().normalizeEmail()
+        if (userEmail.isBlank()) return false
+
+        return members
+            .asSequence()
+            .map { it.normalizeEmail() }
+            .filter { it.isNotBlank() }
+            .any { it == userEmail }
+    }
+
+    fun addMember(userEmail: User.Email) = members.add(userEmail.str().normalizeEmail())
+
+    fun removeMember(userEmail: String) {
+        val normalized = userEmail.normalizeEmail()
+        members.removeAll { it.normalizeEmail() == normalized }
+    }
+
+    fun hasWriteAccess(user: User): Boolean {
+        val userEmail = user.email.str().normalizeEmail()
+        return userEmail == email.normalizeEmail() || Admins.isAdmin(user) || members.any { it.normalizeEmail() == userEmail }
+    }
+
     fun update(updateValues: TeamUpdate) = copy(
-        name = updateValues.name ?: name,
-        email = updateValues.email ?: email,
-        members = updateValues.members ?: members
+        name = updateValues.name ?: name, email = updateValues.email ?: email, members = updateValues.members ?: members
     )
 
     companion object {
         fun createNew(name: String, email: String, shortName: String? = null) = OrganizationUnit(
-            id = shortName?.toOrgUnitId() ?: name.toOrgUnitId(),
-            name = name,
-            email = email,
-            members = mutableSetOf()
+            id = shortName?.toOrgUnitId() ?: name.toOrgUnitId(), name = name, email = email, members = mutableSetOf()
         )
 
         fun createNew(newTeam: NewTeam) = OrganizationUnit(
@@ -190,38 +199,28 @@ data class OrganizationUnit(
         )
 
 
-        private fun String.toOrgUnitId() = trimMargin()
-            .lowercase()
-            .replace(" ", "-")
+        private fun String.toOrgUnitId() = trimMargin().lowercase().replace(" ", "-")
 
-        fun fromJson(organizationJson: JsonNode): OrganizationUnit = OrganizationUnit(
-            id = organizationJson["id"].asText(),
-            name = organizationJson["name"].asText(),
-            email = organizationJson["email"].asText(),
-            members = organizationJson["members"].takeIf { it != null }?.toList()?.map { it.asText() }
-                ?.toMutableSet()
-                ?: mutableSetOf()
-        )
+        fun fromJson(organizationJson: JsonNode): OrganizationUnit =
+            OrganizationUnit(
+                id = organizationJson["id"].asText(),
+                name = organizationJson["name"].asText(),
+                email = organizationJson["email"].asText(),
+                members = organizationJson["members"].takeIf { it != null }?.toList()?.map { it.asText() }
+                    ?.toMutableSet() ?: mutableSetOf())
     }
-
-    private fun String.comparable(): String = trimIndent().lowercase()
-    fun hasWriteAccess(user: User): Boolean =
-        user.email.str().comparable() == email.comparable() || Admins.isAdmin(user) || members.any {
-            it.comparable() == user.email.str().comparable()
-        }
 }
 
 enum class ReportType {
     AGGREGATED, SINGLE;
 
     companion object {
-        fun valueFromJson(reportRoot: JsonNode): ReportType =
-            reportRoot["reportType"].let {
-                when (it) {
-                    null -> SINGLE
-                    else -> valueOf(it.asText("SINGLE"))
-                }
+        fun valueFromJson(reportRoot: JsonNode): ReportType = reportRoot["reportType"].let {
+            when (it) {
+                null -> SINGLE
+                else -> valueOf(it.asText("SINGLE"))
             }
+        }
     }
 }
 
