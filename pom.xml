@@ -325,12 +325,6 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${surefire.version}</version>
                 <configuration>
-                    <!-- make JUnit Platform provider explicit -->
-                    <providers>
-                        <provider>
-                            <name>junit-platform</name>
-                        </provider>
-                    </providers>
                     <environmentVariables>
                         <ADMIN_GROUP>${admin.group}</ADMIN_GROUP>
                         <TESTCONTAINERS_RYUK_DISABLED>true</TESTCONTAINERS_RYUK_DISABLED>
