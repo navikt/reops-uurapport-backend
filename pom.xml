@@ -25,7 +25,7 @@
         <log4j.over.slf4j.version>2.0.17</log4j.over.slf4j.version>
         <kotlin.css.version>1.0.0-pre.860</kotlin.css.version>
         <micrometer.prometheus.version>1.16.2</micrometer.prometheus.version>
-        <junit.version>6.0.2</junit.version>
+        <junit.version>5.12.1</junit.version>
         <testcontainers.version>2.0.3</testcontainers.version>
         <testcontainers.junit.version>1.21.4</testcontainers.junit.version>
         <testcontainers.postgresql.version>1.21.4</testcontainers.postgresql.version>
@@ -34,6 +34,19 @@
         <surefire.version>3.5.4</surefire.version>
         <shade.plugin.version>3.6.1</shade.plugin.version>
 	</properties>
+
+	<!-- Keep JUnit artifacts aligned -->
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.junit</groupId>
+				<artifactId>junit-bom</artifactId>
+				<version>${junit.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 
     <dependencies>
         <!-- Kotlin -->
@@ -206,23 +219,20 @@
         </dependency>
 
         <!-- Test deps -->
-        <!-- JUnit Jupiter -->
+        <!-- JUnit Jupiter (versions provided by junit-bom) -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
-            <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
-            <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-params</artifactId>
-            <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
 
@@ -315,6 +325,12 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${surefire.version}</version>
                 <configuration>
+                    <!-- make JUnit Platform provider explicit -->
+                    <providers>
+                        <provider>
+                            <name>junit-platform</name>
+                        </provider>
+                    </providers>
                     <environmentVariables>
                         <ADMIN_GROUP>${admin.group}</ADMIN_GROUP>
                         <TESTCONTAINERS_RYUK_DISABLED>true</TESTCONTAINERS_RYUK_DISABLED>
