@@ -14,12 +14,12 @@
         <ktor.version>3.4.0</ktor.version>
         <jackson.version>2.21.0</jackson.version>
         <admin.group>test_admin</admin.group>
-        <flyway.version>11.20.2</flyway.version>
+        <flyway.version>11.20.3</flyway.version>
         <hikaricp.version>7.0.2</hikaricp.version>
         <postgresql.version>42.7.9</postgresql.version>
         <kotliquery.version>1.9.1</kotliquery.version>
-        <logback.classic.version>1.5.25</logback.classic.version>
-        <logback.core.version>1.5.25</logback.core.version>
+        <logback.classic.version>1.5.26</logback.classic.version>
+        <logback.core.version>1.5.26</logback.core.version>
         <logstash.encoder.version>9.0</logstash.encoder.version>
         <kotlin.logging.version>3.0.5</kotlin.logging.version>
         <log4j.over.slf4j.version>2.0.17</log4j.over.slf4j.version>
@@ -29,7 +29,7 @@
         <testcontainers.version>2.0.3</testcontainers.version>
         <testcontainers.junit.version>1.21.4</testcontainers.junit.version>
         <testcontainers.postgresql.version>1.21.4</testcontainers.postgresql.version>
-		<kotest.version>6.1.0</kotest.version>
+		<kotest.version>6.1.1</kotest.version>
         <mockk.version>1.14.7</mockk.version>
         <surefire.version>3.5.4</surefire.version>
         <shade.plugin.version>3.6.1</shade.plugin.version>
