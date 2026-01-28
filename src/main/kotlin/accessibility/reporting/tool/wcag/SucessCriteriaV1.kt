@@ -95,6 +95,7 @@ object SucessCriteriaV1 {
             guideline = `1-1 Tekstalternativer`
             contentGroup = ikonerBilderGrafer
             tools = arcToolkit
+            helpUrl = "https://aksel.nav.no/god-praksis/artikler/111-ikke-tekstlig-innhold"
             wcagUrl = "https://www.w3.org/WAI/WCAG21/Understanding/non-text-content.html"
         }.levelA(),
         //1.2Time-based Media
@@ -136,6 +137,7 @@ object SucessCriteriaV1 {
             description = "Ting skal være kodet som det ser ut som."
             guideline = `1-3 Mulig å tilpasse`
             tools = "$devTools/headingsMap"
+            helpUrl = "https://aksel.nav.no/god-praksis/artikler/131-informasjon-og-relasjoner"
             wcagUrl = "https://www.w3.org/WAI/WCAG21/Understanding/info-and-relationships"
         }.levelA(),
         1.perceivable("1.3.2", "Meningsbærende rekkefølge") {
@@ -157,6 +159,7 @@ object SucessCriteriaV1 {
             description = "Brukeren må få velge om innholdet skal vises i liggende eller stående retning."
             guideline = `1-3 Mulig å tilpasse`
             tools = devTools
+            helpUrl = "https://aksel.nav.no/god-praksis/artikler/134-visningsretning"
             wcagUrl = "https://www.w3.org/WAI/WCAG21/Understanding/orientation"
         }.levelA(),
         1.perceivable("1.3.5", "Identifiser formål med inndata") {
@@ -164,6 +167,7 @@ object SucessCriteriaV1 {
             guideline = `1-3 Mulig å tilpasse`
             contentGroup = skjema
             tools = devTools
+            helpUrl = "https://aksel.nav.no/god-praksis/artikler/135-identifiser-formal-med-inndata"
             wcagUrl = "https://www.w3.org/WAI/WCAG21/Understanding/identify-input-purpose"
         }.levelAA(),
         //1.4 Distinguishable
@@ -179,6 +183,7 @@ object SucessCriteriaV1 {
             guideline = `1-4 Mulig å skille fra hverandre`
             contentGroup = lydVideoAnimasjoner
             tools = skjønn
+            helpUrl = "https://aksel.nav.no/god-praksis/artikler/142-styring-av-lyd"
             wcagUrl = "https://www.w3.org/TR/UNDERSTANDING-WCAG20/visual-audio-contrast-dis-audio.html"
         }.levelA(),
         1.perceivable("1.4.3", "Kontrast (minimum)") {
@@ -192,6 +197,7 @@ object SucessCriteriaV1 {
             description = "Tekst kan bli endret til 200% størrelse uten tap av innhold eller funksjon."
             guideline = `1-4 Mulig å skille fra hverandre`
             tools = "Zoom"
+            helpUrl = "https://aksel.nav.no/god-praksis/artikler/144-endring-av-tekststorrelse"
             wcagUrl = "https://www.w3.org/WAI/WCAG21/Understanding/resize-text"
         }.levelAA(),
         1.perceivable("1.4.5", " Bilder av tekst") {
@@ -207,6 +213,7 @@ object SucessCriteriaV1 {
                 "Innhold skal kunne endres til 400 prosent størrelse ved 1280 piksler bredde, uten tap av informasjon eller funksjonalitet."
             guideline = `1-4 Mulig å skille fra hverandre`
             tools = "Zoom + $devTools"
+            helpUrl = "https://aksel.nav.no/god-praksis/artikler/1410-dynamisk-tilpasning-reflow"
             wcagUrl = "https://www.w3.org/WAI/WCAG21/Understanding/reflow.html"
         }.levelAA(),
         1.perceivable("1.4.11", "Kontrast for ikke-tekstlig innhold") {
@@ -229,6 +236,7 @@ object SucessCriteriaV1 {
                 "Brukeren skal ha mer kontroll over innholdet på nettsiden som får fokus med musepeker eller tastatur."
             guideline = `1-4 Mulig å skille fra hverandre`
             tools = skjønn
+            helpUrl = "https://aksel.nav.no/god-praksis/artikler/1413-pekerfolsomt-innhold-eller-innhold-ved-tastaturfokus"
             wcagUrl = "https://www.w3.org/WAI/WCAG21/Understanding/content-on-hover-or-focus"
         }.levelAA(),
 
@@ -245,6 +253,7 @@ object SucessCriteriaV1 {
             description = "Unngå tastaturfeller."
             guideline = `2-1 Tilgjengelig med tastatur`
             tools = tastatur
+            helpUrl = "https://aksel.nav.no/god-praksis/artikler/212-ingen-tastaturfelle"
             wcagUrl = "https://www.w3.org/WAI/WCAG21/Understanding/no-keyboard-trap"
         }.levelA(),
         2.operable("2.1.4", "Hurtigtaster som består av ett tegn") {
@@ -252,6 +261,7 @@ object SucessCriteriaV1 {
 
             guideline = `2-1 Tilgjengelig med tastatur`
             tools = "Skjønn"
+            helpUrl = "https://aksel.nav.no/god-praksis/artikler/214-hurtigtaster-som-bestar-av-ett-tegn"
             wcagUrl = "https://www.w3.org/WAI/WCAG21/Understanding/character-key-shortcuts"
         }.levelA(),
         //2.2 Enough Time
@@ -260,6 +270,7 @@ object SucessCriteriaV1 {
             guideline = `2-2 Nok tid`
             contentGroup = "Tidsbegrenset innhold"
             tools = "Skjønn"
+            helpUrl = "https://aksel.nav.no/god-praksis/artikler/221-justerbar-hastighet"
             wcagUrl = "https://www.w3.org/WAI/WCAG21/Understanding/timing-adjustable"
         }.levelA(),
         2.operable("2.2.2", " Pause, stopp, skjul") {
@@ -267,6 +278,7 @@ object SucessCriteriaV1 {
             guideline = `2-2 Nok tid`
             contentGroup = "Innhold som automatisk endrer seg eller oppdaterer"
             tools = "Skjønn"
+            helpUrl = "https://aksel.nav.no/god-praksis/artikler/222-pause-stopp-skjul"
             wcagUrl = "https://www.w3.org/WAI/WCAG21/Understanding/pause-stop-hide"
         }.levelA(),
         //2.3 Seizures and Physical Reactions
@@ -275,6 +287,7 @@ object SucessCriteriaV1 {
             guideline = Guidelines.`2-3 Anfall og andre fysiske reaksjoner`
             contentGroup = "Innhold som blinker"
             tools = "Skjønn"
+            helpUrl = "https://aksel.nav.no/god-praksis/artikler/231-terskelverdi-pa-maksimalt-tre-glimt"
             wcagUrl = "https://www.w3.org/WAI/WCAG21/Understanding/three-flashes-or-below-threshold"
         }.levelA(),
         //2.4 Navigable
@@ -296,6 +309,7 @@ object SucessCriteriaV1 {
             description = "Presenter innholdet i en logisk rekkefølge."
             guideline = `2-4 Navigerbar`
             tools = tastatur
+            helpUrl = "https://aksel.nav.no/god-praksis/artikler/243-fokusrekkefolge"
             wcagUrl = "https://www.w3.org/WAI/WCAG21/Understanding/focus-order"
         }.levelA(),
         2.operable("2.4.4", " Formål med lenke (i kontekst)") {
@@ -332,12 +346,14 @@ object SucessCriteriaV1 {
                 "Innhold på nettsiden skal kunne brukes med enkel pekerinput."
             guideline = `2-5 Inndatametode`
             tools = "Mus"
+            helpUrl = "https://aksel.nav.no/god-praksis/artikler/251-pekerbevegelser"
             wcagUrl = "https://www.w3.org/WAI/WCAG21/Understanding/pointer-gestures"
         }.levelA(),
         2.operable("2.5.2", "Pekeravbrytelse") {
             description = "Uheldige og feilaktige input via mus eller berøringsskjerm skal lettere kunne forhindres."
             guideline = `2-5 Inndatametode`
             tools = "Mus"
+            helpUrl = "https://aksel.nav.no/god-praksis/artikler/252-pekeravbrytelse"
             wcagUrl = "https://www.w3.org/WAI/WCAG21/Understanding/pointer-cancellation"
         }.levelA(),
         2.operable("2.5.3", "Ledetekst i navn") {
@@ -345,6 +361,7 @@ object SucessCriteriaV1 {
             guideline = `2-5 Inndatametode`
             contentGroup = "Skjemaer"
             tools = devTools
+            helpUrl = "https://aksel.nav.no/god-praksis/artikler/253-ledetekst-i-navn"
             wcagUrl = "https://www.w3.org/WAI/WCAG21/Understanding/label-in-name"
         }.levelA(),
         2.operable("2.5.4", "Bevegelsesaktivering") {
@@ -352,6 +369,7 @@ object SucessCriteriaV1 {
                 "Funksjonalitet som kan betjenes med å bevege enheten eller ved brukerbevegelse, skal også kunne betjenes med brukergrensesnittkomponenter."
             guideline = `2-5 Inndatametode`
             tools = "Skjønn"
+            helpUrl = "https://aksel.nav.no/god-praksis/artikler/254-bevegelsesaktivering"
             wcagUrl = "https://www.w3.org/WAI/WCAG21/Understanding/motion-actuation"
         }.levelA(),
         //3.1 Readable
@@ -367,6 +385,7 @@ object SucessCriteriaV1 {
                 "Sørg for at alle deler av innholdet som er på et annet språk enn resten av siden er markert i koden."
             guideline = `3-1 Leselig`
             tools = devTools
+            helpUrl = "https://aksel.nav.no/god-praksis/artikler/312-sprak-pa-deler-av-innhold"
             wcagUrl = "https://www.w3.org/WAI/WCAG21/Understanding/language-of-parts"
 
         }.levelAA(),
@@ -375,6 +394,7 @@ object SucessCriteriaV1 {
             description = "Når en komponent kommer i fokus medfører dette ikke automatisk betydelige endringer i siden."
             guideline = `3-2 Forutsigbar`
             tools = tastatur
+            helpUrl = "https://aksel.nav.no/god-praksis/artikler/321-fokus"
             wcagUrl = "https://www.w3.org/WAI/WCAG21/Understanding/on-focus"
         }.levelA(),
         3.understandable("3.2.2", "Inndata") {
@@ -382,6 +402,7 @@ object SucessCriteriaV1 {
             guideline = `3-2 Forutsigbar`
             contentGroup = "Skjemaer"
             tools = tastatur
+            helpUrl = "https://aksel.nav.no/god-praksis/artikler/322-inndata"
             wcagUrl = "https://www.w3.org/WAI/WCAG21/Understanding/on-input"
         }.levelA(),
         3.understandable("3.2.3", "Konsekvent navigering") {
@@ -395,6 +416,7 @@ object SucessCriteriaV1 {
             description = "Elementer som har samme funksjonalitet på tvers av flere sider er utformet likt."
             guideline = `3-2 Forutsigbar`
             tools = "Skjønn/DevTools"
+            helpUrl = "https://aksel.nav.no/god-praksis/artikler/324-konsekvent-identifikasjon"
             wcagUrl = "https://www.w3.org/WAI/WCAG21/Understanding/consistent-identification"
         }.levelAA(),
         //3.3 Input Assistance
@@ -430,6 +452,7 @@ object SucessCriteriaV1 {
             guideline = `3-3 Inndatahjelp`
             contentGroup = skjema
             tools = skjønn
+            helpUrl = "https://aksel.nav.no/god-praksis/artikler/334-forhindring-av-feil"
             wcagUrl = "https://www.w3.org/WAI/WCAG21/Understanding/error-prevention-legal-financial-data"
         }.levelAA(),
         //4.1 Compatible
@@ -444,6 +467,7 @@ object SucessCriteriaV1 {
             description = "Alle komponenter har navn og rolle bestemt i koden."
             guideline = `4-1 Kompatibel`
             tools = "ARC Toolkit/DevTools"
+            helpUrl = "https://aksel.nav.no/god-praksis/artikler/412-navn-rolle-verdi"
             wcagUrl = "https://www.w3.org/WAI/WCAG21/Understanding/name-role-value"
         }.levelA(),
         4.robust("4.1.3", "Statusbeskjeder") {
