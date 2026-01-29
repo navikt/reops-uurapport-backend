@@ -64,8 +64,3 @@ ADMINS=carl@good.morning;AZURE_APP_CLIENT_ID=a11y;AZURE_APP_WELL_KNOWN_URL=http:
 ### Oppdatere apidocs
 Apiet er beskrevet i filen [documentation.yaml](app/src/main/resources/static/openapi/documentation.yaml)
 Du kan oppdatere manuelt eller bruke en plugin (f.eks openapi generator for ktor i intellij)
-
-## Troubleshooting
-### Unresolved Network Adress når du prøver å starte appen (mac)
-1. Åpne /etc/host `open /etc/hosts`
-2. Legg inn på ny linje: `127.0.0.1 host.docker.internal`
