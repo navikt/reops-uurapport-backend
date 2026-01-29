@@ -2,7 +2,6 @@ package accessibility.reporting.tool
 
 import accessibility.reporting.tool.wcag.Report
 import accessibility.reporting.tool.wcag.datestr
-import assert
 import com.fasterxml.jackson.databind.JsonNode
 import io.kotest.matchers.shouldBe
 import io.ktor.client.request.*

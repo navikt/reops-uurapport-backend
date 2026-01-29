@@ -1,64 +1,20 @@
+package accessibility.reporting.tool
+
 import accessibility.reporting.tool.database.Database
-import com.zaxxer.hikari.HikariDataSource
-import io.kotest.matchers.shouldBe
-import kotliquery.queryOf
-import org.flywaydb.core.Flyway
-import org.testcontainers.containers.PostgreSQLContainer
+import accessibility.reporting.tool.database.EmbeddedPostgresDatabase
 
-class LocalPostgresDatabase private constructor() : Database {
+/**
+ * Backwards-compatible alias kept so older tests/utilities importing LocalPostgresDatabase still compile.
+ * Uses in-memory H2 (PostgreSQL mode) under the hood.
+ */
+object LocalPostgresDatabase {
+    fun cleanDb(): Database = EmbeddedPostgresDatabase.cleanDb()
 
-    private val memDataSource: HikariDataSource
-    private val container = PostgreSQLContainer<Nothing>("postgres:15")
-
-    companion object {
-        private val instance by lazy {
-            LocalPostgresDatabase().also {
-                it.migrate() shouldBe 4
-            }
-        }
-
-        fun cleanDb(): LocalPostgresDatabase {
-            instance.update { queryOf("delete from changelog") }
-            instance.update { queryOf("delete from report") }
-            instance.update { queryOf("delete from organization_unit") }
-            return instance
-        }
-
-        fun prepareForNextTest(){
-            instance.update { queryOf("delete from changelog") }
-            instance.update { queryOf("delete from report") }
-            instance.update { queryOf("delete from organization_unit") }
-        }
+    fun prepareForNextTest() {
+        // no-op: cleanDb() returns a fresh in-memory DB instance
+        // keeping this for API compatibility with existing tests
     }
-
-    init {
-        container.start()
-        memDataSource = createDataSource()
-    }
-
-    override val dataSource: HikariDataSource
-        get() = memDataSource
-
-
-    private fun createDataSource(): HikariDataSource {
-        return HikariDataSource().apply {
-            jdbcUrl = container.jdbcUrl
-            username = container.username
-            password = container.password
-            isAutoCommit = true
-            validate()
-        }
-    }
-
-    private fun migrate(): Int =
-        Flyway.configure()
-            .connectRetries(3)
-            .dataSource(dataSource)
-            .load()
-            .migrate().migrationsExecuted
 }
 
-inline fun <T> T.assert(block: T.() -> Unit): T =
-    apply {
-        block()
-    }
+// Keep existing helper used by tests
+inline fun <T> T.assert(block: T.() -> Unit): T = apply { block() }

@@ -1,16 +1,15 @@
 package accessibility.reporting.tool.database
 
-import LocalPostgresDatabase
+import accessibility.reporting.tool.assert
 import accessibility.reporting.tool.authenitcation.User
 import accessibility.reporting.tool.authenitcation.User.Email
 import accessibility.reporting.tool.wcag.*
-import assert
 import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe
 import kotliquery.queryOf
-import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import java.util.UUID
 
@@ -23,7 +22,7 @@ class ReportRepositoryTest {
         email = "test@nav.no",
         members = mutableSetOf()
     )
-    private val database = LocalPostgresDatabase.cleanDb()
+    private val database = EmbeddedPostgresDatabase.cleanDb()
     private val reportRepository = ReportRepository(database)
     private val testUserEmail = Email("tadda@test.tadda")
     private val testUserName = "Tadda Taddasen"
@@ -33,9 +32,9 @@ class ReportRepositoryTest {
     fun setup() {
         database.update {
             queryOf(
-                """INSERT INTO organization_unit (organization_unit_id, name, email) 
-                    VALUES (:id,:name, :email) 
-                """.trimMargin(),
+                """INSERT INTO organization_unit (organization_unit_id, name, email)
+                    VALUES (:id,:name, :email)
+                """.trimIndent(),
                 mapOf(
                     "id" to testOrg.id,
                     "name" to testOrg.name,
@@ -49,19 +48,20 @@ class ReportRepositoryTest {
     fun cleanDb() {
         database.update { queryOf("delete from changelog") }
         database.update { queryOf("delete from report") }
-
     }
 
     @Test
     fun upsertReport() {
         val testReport = dummyReportV2()
         val aggregatedTestReport = dummyAggregatedReportV2(orgUnit = testOrg)
+
         reportRepository.upsertReport(testReport)
         reportRepository.getReport<Report>(testReport.reportId).assert {
             require(this != null)
             successCriteria.size shouldBe 49
             reportType shouldBe ReportType.SINGLE
         }
+
         reportRepository.upsertReport(aggregatedTestReport)
         reportRepository.getReport<AggregatedReport>(aggregatedTestReport.reportId).assert {
             require(this != null)
@@ -69,25 +69,29 @@ class ReportRepositoryTest {
             reportType shouldBe ReportType.AGGREGATED
             fromReports.size shouldBe 2
             fromOrganizations.size shouldBe 1
-
         }
 
         reportRepository.upsertReport(testReport)
         reportRepository.upsertReport(testReport)
         reportRepository.getReport<Report>(testReport.reportId).assert { require(this != null) }
-        database.list {
-            queryOf(
-                "SELECT * from changelog where report_id=:id",
-                mapOf("id" to testReport.reportId)
-            ).map { row -> row.string("report_id") }.asList
-        }.size shouldBe 3
 
+        val rows = database.list {
+            queryOf(
+                "SELECT report_id from changelog where report_id=:id",
+                mapOf("id" to testReport.reportId)
+            )
+                .map { row -> row.string("report_id") }
+                .asList
+        }
+
+        rows.size shouldBe 3
     }
 
     @Test
     fun `get reports by type`() {
         val testReport = dummyReportV2()
         val aggregatedTestReport = dummyAggregatedReportV2(orgUnit = testOrg)
+
         reportRepository.upsertReport(testReport)
         reportRepository.upsertReport(aggregatedTestReport)
         reportRepository.upsertReport(dummyAggregatedReportV2(orgUnit = testOrg))
@@ -102,6 +106,7 @@ class ReportRepositoryTest {
     fun `get reports by id`() {
         val testReport = dummyReportV2()
         val aggregatedTestReport = dummyAggregatedReportV2(orgUnit = testOrg)
+
         reportRepository.upsertReport(testReport)
         reportRepository.upsertReport(aggregatedTestReport)
         reportRepository.upsertReport(dummyAggregatedReportV2(orgUnit = testOrg))
@@ -112,6 +117,7 @@ class ReportRepositoryTest {
                 testReport.reportId
             )
         ).size shouldBe 2
+
         reportRepository.getReports<AggregatedReport>(ids = listOf(aggregatedTestReport.reportId)).size shouldBe 1
     }
 
@@ -120,20 +126,14 @@ class ReportRepositoryTest {
         val testUser = User(email = Email("randomemail"), name = null, oid = testUserOid, groups = listOf())
         val updatedReport = dummyReportV2(
             url = "http://dummyurl4.test",
-            user = User(email = Email("randomemail"), name = null, oid = testUserOid, groups = listOf())
+            user = testUser
         )
 
         reportRepository.upsertReport(dummyReportV2(user = testUser, url = "http://dummyx2.test"))
         reportRepository.upsertReport(dummyReportV2(user = testUser, url = "http://dummyurl2.test"))
         reportRepository.upsertReport(dummyReportV2(user = testUser, url = "http://dummyurl3.test"))
-        reportRepository.upsertReport(
-            updatedReport
-        )
-
-        reportRepository.upsertReport(
-            updatedReport
-        )
-
+        reportRepository.upsertReport(updatedReport)
+        reportRepository.upsertReport(updatedReport)
 
         reportRepository.getReportsForUser<Report>(testUserOid).assert {
             size shouldBe 4
@@ -150,7 +150,6 @@ class ReportRepositoryTest {
                 any { it.url == "http://dummyurl4.test" } shouldBe true
             }
         }
-
     }
 
     private fun dummyReportV2(
@@ -189,6 +188,4 @@ class ReportRepositoryTest {
             ),
             notes = ""
         )
-
 }
-

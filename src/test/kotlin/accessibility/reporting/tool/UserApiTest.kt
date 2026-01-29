@@ -1,6 +1,5 @@
 package accessibility.reporting.tool
 
-import assert
 import io.kotest.matchers.shouldBe
 import io.ktor.client.statement.*
 import io.ktor.http.*
@@ -50,7 +49,6 @@ class UserApiTest : TestApi() {
             reportRepository.upsertReport(report)
         }
     }
-
 
     @Test
     fun `Hent User Summary`() = withTestApi {

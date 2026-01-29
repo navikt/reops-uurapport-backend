@@ -1,27 +1,26 @@
 package accessibility.reporting.tool.wcag
 
+import accessibility.reporting.tool.assert
 import accessibility.reporting.tool.wcag.SuccessCriterion.Companion.aggregate
-import assert
 import io.kotest.matchers.shouldBe
-import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
 class SuccessCriterionTest {
 
     @Test
     fun `aggregerer sukkesskriterer basert på nummer`() {
+        val testcriteria =
+            (testCriterion(
+                number = "1.1.1",
+                status = Status.NON_COMPLIANT,
+                breakingTheLaw = "nei",
+                lawDoesNotApply = "law",
+                tooHardToComply = "too hard"
+            ) * 5)
+                .plus(testCriterion("1.2.3", status = Status.NOT_TESTED))
 
-        val testcriteria = (testCriterion(
-            number = "1.1.1",
-            status = Status.NON_COMPLIANT,
-            breakingTheLaw = "nei",
-            lawDoesNotApply = "law",
-            tooHardToComply = "too hard"
-        ) * 5)
-            .plus(testCriterion("1.2.3", status = Status.NOT_TESTED))
-
-        testcriteria.
-        mapToSummary()
+        testcriteria
+            .mapToSummary()
             .aggregate()
             .assert {
                 size shouldBe 2
@@ -75,8 +74,6 @@ class SuccessCriterionTest {
                     status shouldBe Status.NOT_TESTED
                 }
             }
-
-
     }
 
     @Test
@@ -111,20 +108,20 @@ class SuccessCriterionTest {
             .aggregate()
             .first().status shouldBe Status.NOT_APPLICABLE
     }
-
-
 }
 
 private fun List<SuccessCriterion>.mapToSummary() = map {
     SuccessCriterionSummary(
-        reportTitle = "Testtittel", contactPerson = "testperson@tes.no", content = it
+        reportTitle = "Testtittel",
+        contactPerson = "testperson@tes.no",
+        content = it
     )
 }
 
-private operator fun SuccessCriterion.times(amount: Int) = mutableListOf<SuccessCriterion>().apply {
-    for (i in 1..amount)
-        add(this@times)
-}
+private operator fun SuccessCriterion.times(amount: Int) =
+    mutableListOf<SuccessCriterion>().apply {
+        for (i in 1..amount) add(this@times)
+    }
 
 private fun testCriterion(
     number: String = "1.1.1",

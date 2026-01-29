@@ -2,7 +2,6 @@ package accessibility.reporting.tool
 
 import accessibility.reporting.tool.authenitcation.User
 import accessibility.reporting.tool.database.toStringList
-import assert
 import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
@@ -15,11 +14,8 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 
-
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-
-
-class CreateReportTest: TestApi() {
+class CreateReportTest : TestApi() {
 
     private val testUser = TestUser(email = "author.tadda@test.nav", name = "Author")
     private val adminUser = TestUser(email = "admin.tadda@test.nav", name = "Admin", groups = listOf("test_admin"))
@@ -35,7 +31,7 @@ class CreateReportTest: TestApi() {
     fun setup() {
         database.update {
             queryOf(
-                """INSERT INTO organization_unit (organization_unit_id, name, email, member) 
+                """INSERT INTO organization_unit (organization_unit_id, name, email, member)
                     VALUES (:id,:name,:email, :members)
                 """.trimMargin(),
                 mapOf(
@@ -48,9 +44,8 @@ class CreateReportTest: TestApi() {
         }
     }
 
-
     @Test
-    fun `Creates a new report`() = withTestApi{
+    fun `Creates a new report`() = withTestApi {
         val response = client.postWithJwtUser(testUser.original, "api/reports/new") {
             contentType(ContentType.Application.Json)
             setBody(
@@ -60,13 +55,13 @@ class CreateReportTest: TestApi() {
                     "teamId": "${testOrg.id}",
                     "isPartOfNavNo": "false"
                     }
-                    
                 """.trimMargin()
             )
         }
         response.status shouldBe HttpStatusCode.OK
         val id = testApiObjectmapper.readTree(response.bodyAsText())["id"].asText()
         id shouldNotBe null
+
         client.getWithJwtUser(testUser.original, "api/reports/$id").assert {
             status shouldBe HttpStatusCode.OK
             testApiObjectmapper.readTree(bodyAsText()).assert {
@@ -76,7 +71,6 @@ class CreateReportTest: TestApi() {
                 this["notes"].asText() shouldBe ""
             }
         }
-
 
         client.run { assertCorrectAccess(id, testUser.capitalized, true) }
         client.run { assertCorrectAccess(id, adminUser.original, true) }
@@ -96,5 +90,3 @@ class CreateReportTest: TestApi() {
         }
     }
 }
-
-

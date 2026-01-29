@@ -1,8 +1,7 @@
 package accessibility.reporting.tool
 
-import LocalPostgresDatabase
 import accessibility.reporting.tool.authenitcation.User
-import accessibility.reporting.tool.database.LocalDateTimeHelper
+import accessibility.reporting.tool.database.EmbeddedPostgresDatabase
 import accessibility.reporting.tool.database.OrganizationRepository
 import accessibility.reporting.tool.database.ReportRepository
 import accessibility.reporting.tool.wcag.*
@@ -35,8 +34,8 @@ fun dummyReportV4(
     version = Version.V5,
     author = user.toAuthor(),
     successCriteria = Version.V5.criteria,
-    lastChanged = LocalDateTimeHelper.nowAtUtc(),
-    created = LocalDateTimeHelper.nowAtUtc(),
+    lastChanged = accessibility.reporting.tool.database.LocalDateTimeHelper.nowAtUtc(),
+    created = accessibility.reporting.tool.database.LocalDateTimeHelper.nowAtUtc(),
     lastUpdatedBy = null,
     descriptiveName = descriptiveName,
     reportType = reportType,
@@ -58,8 +57,8 @@ fun dummyReportV4(
     version = Version.V5,
     author = user.original.toAuthor(),
     successCriteria = Version.V5.criteria,
-    lastChanged = LocalDateTimeHelper.nowAtUtc(),
-    created = LocalDateTimeHelper.nowAtUtc(),
+    lastChanged = accessibility.reporting.tool.database.LocalDateTimeHelper.nowAtUtc(),
+    created = accessibility.reporting.tool.database.LocalDateTimeHelper.nowAtUtc(),
     lastUpdatedBy = null,
     descriptiveName = descriptiveName,
     reportType = reportType,
@@ -84,11 +83,8 @@ fun dummyAggregatedReportV2(
         notes = ""
     )
 
-
 fun Application.mockEmptyAuth() = authentication {
-    jwt {
-        skipWhen { true }
-    }
+    jwt { skipWhen { true } }
 }
 
 class TestUser(email: String? = null, val name: String, groups: List<String> = listOf()) {
@@ -115,14 +111,14 @@ fun withJsonClue(jsonField: String, assertFuntion: (String) -> Unit) {
     withClue("Jsonfield: $jsonField") {
         try {
             assertFuntion(jsonField)
-        } catch (nullpointerException: NullPointerException) {
+        } catch (_: NullPointerException) {
             throw JsonAssertionFailedException(jsonField)
         }
     }
 }
 
 open class TestApi {
-    protected val database = LocalPostgresDatabase.cleanDb()
+    protected val database = EmbeddedPostgresDatabase.cleanDb()
     protected val reportRepository = ReportRepository(database)
     protected val organizationRepository = OrganizationRepository(database)
 

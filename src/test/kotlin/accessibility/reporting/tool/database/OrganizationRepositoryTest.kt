@@ -1,23 +1,22 @@
 package accessibility.reporting.tool.database
 
+import accessibility.reporting.tool.assert
 import accessibility.reporting.tool.authenitcation.User
 import accessibility.reporting.tool.authenitcation.User.Email
 import accessibility.reporting.tool.dummyReportV4
 import accessibility.reporting.tool.wcag.OrganizationUnit
 import accessibility.reporting.tool.wcag.Report
-import assert
 import io.kotest.assertions.withClue
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import kotliquery.queryOf
 import org.junit.jupiter.api.*
-import java.util.*
-import kotlin.collections.List
+import java.util.UUID
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class OrganizationRepositoryTest {
-    private val database = LocalPostgresDatabase.cleanDb()
+    private val database = EmbeddedPostgresDatabase.cleanDb()
     private val repository = OrganizationRepository(database)
     private val testUserEmail = Email("test@nav.no")
     private val testOrg = OrganizationUnit(
@@ -30,7 +29,6 @@ class OrganizationRepositoryTest {
         name = "DummyOrg1",
         email = "test@nav1.no",
     ).apply { addMember(testUserEmail) }
-
 
     @BeforeEach
     fun setup() {
@@ -72,7 +70,6 @@ class OrganizationRepositoryTest {
         testOrg1.addMember("testMember@test.ko".toEmail())
         repository.upsertOrganizationUnit(testOrg1)
 
-
         repository.getReportForOrganizationUnit<Report>(testOrg1.id).apply {
             organizationUnit.assert {
                 require(this != null)
@@ -85,7 +82,6 @@ class OrganizationRepositoryTest {
                 organizationUnit!!.members.size shouldBe 2
             }
         }
-
 
         repository.upsertOrganizationUnit(testOrg2)
         repository.upsertOrganizationUnit(testOrg3)
@@ -144,13 +140,13 @@ class OrganizationRepositoryTest {
     fun getOrganizationForUser() {
         val result = repository.getOrganizationForUser(testUserEmail)
         Assertions.assertEquals(2, result.size)
-        assert(result.names.contains("DummyOrg"))
-        assert(result.names.contains("DummyOrg1"))
+        Assertions.assertTrue(result.names.contains("DummyOrg"))
+        Assertions.assertTrue(result.names.contains("DummyOrg1"))
     }
 
     private fun createOrganizationUnitQuery(organizationUnit: OrganizationUnit) =
         queryOf(
-            """INSERT INTO organization_unit (organization_unit_id, name, email,member) 
+            """INSERT INTO organization_unit (organization_unit_id, name, email,member)
                     VALUES (:id,:name,:email,:members)
                 """.trimMargin(),
             mapOf(
@@ -163,7 +159,6 @@ class OrganizationRepositoryTest {
 
     @Test
     fun `finner organisasjonseneter uavhengig av upper eller lower case`() {
-
         val brukerLowerCase = Email("test.testtjoho@nav.no")
         val brukerCamelCase = Email("Test.Testjaha@nav.no")
         val brukerUtenEnhet = Email("Test.guest@nav.no")
@@ -180,12 +175,9 @@ class OrganizationRepositoryTest {
             email = "test3@nav.no",
             members = mutableSetOf(brukerLowerCase.str(), brukerCamelCase.str())
         )
-        database.update {
-            createOrganizationUnitQuery(testOrg2)
-        }
-        database.update {
-            createOrganizationUnitQuery(testOrg3)
-        }
+        database.update { createOrganizationUnitQuery(testOrg2) }
+        database.update { createOrganizationUnitQuery(testOrg3) }
+
         val resultLower = repository.getOrganizationForUser(brukerLowerCase)
         Assertions.assertEquals(2, resultLower.size)
         resultLower.names shouldContain testOrg2.name

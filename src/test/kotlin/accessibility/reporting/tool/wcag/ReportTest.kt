@@ -1,15 +1,14 @@
 package accessibility.reporting.tool.wcag
 
+import accessibility.reporting.tool.assert
 import accessibility.reporting.tool.authenitcation.User
 import accessibility.reporting.tool.database.Admins
-import assert
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.date.shouldBeAfter
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.mockk.mockkStatic
 import org.junit.jupiter.api.Test
-
 import java.util.UUID
 
 fun String.toEmail() = User.Email(this)
@@ -70,6 +69,7 @@ class ReportTest {
                 }
             }
         }
+
         val testUpdatedCriterion2 = SucessCriteriaV1.criteriaTemplate.find { it.number == "4.1.1" }!!.copy(
             status = Status.COMPLIANT
         )
@@ -81,6 +81,7 @@ class ReportTest {
                 User.Oid(UUID.randomUUID().toString()),
                 groups = listOf()
             )
+
         updatedReport.withUpdatedCriterion(testUpdatedCriterion2, contributor).assert {
             successCriteria.count { it.status != Status.NOT_TESTED } shouldBe 2
             contributors.size shouldBe 1

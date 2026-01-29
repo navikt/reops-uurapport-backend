@@ -3,7 +3,6 @@ package accessibility.reporting.tool
 import accessibility.reporting.tool.authenitcation.User.Email
 import accessibility.reporting.tool.wcag.Report
 import accessibility.reporting.tool.wcag.datestr
-import assert
 import com.fasterxml.jackson.databind.JsonNode
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.shouldBe
@@ -16,8 +15,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-
-class TeamApiTest: TestApi() {
+class TeamApiTest : TestApi() {
 
     private val testOrg = createTestOrg(
         name = "Testorganisation",
@@ -30,7 +28,7 @@ class TeamApiTest: TestApi() {
 
     private val testorgsReports = listOf(dummyReportV4(orgUnit = testOrg), dummyReportV4(orgUnit = testOrg))
 
-    @BeforeEach()
+    @BeforeEach
     fun populateDb() {
         cleanDb()
         organizationRepository.upsertOrganizationUnit(testOrg)
@@ -42,11 +40,10 @@ class TeamApiTest: TestApi() {
     }
 
     @Test
-    fun `Hent Team reports`() = withTestApi{
+    fun `Hent Team reports`() = withTestApi {
         client.get("api/teams/${testOrg.id}/reports").assert {
             status shouldBe OK
-            val responseBody = bodyAsText()
-            val jsonResponse = testApiObjectmapper.readTree(responseBody)
+            val jsonResponse = testApiObjectmapper.readTree(bodyAsText())
             jsonResponse.toList().assert {
                 this.size shouldBe 2
                 testorgsReports.forEach {
@@ -73,6 +70,7 @@ class TeamApiTest: TestApi() {
                 this["members"].toList().map { it.asText() } shouldContainAll testOrg2.members
             }
         }
+
         client.get("/api/teams/${testOrg.id}/details").status shouldBe OK
 
         client.get("/api/teams/${testOrg.id}").assert {
@@ -95,5 +93,4 @@ private fun Report.assertListItemExists(jsonList: List<JsonNode>) {
     result["teamId"].asText() shouldBe organizationUnit!!.id
     result["title"].asText() shouldBe descriptiveName
     result["date"].asText().substring(0..9) shouldBe "yyyy-MM-dd".datestr(lastChanged)
-
 }

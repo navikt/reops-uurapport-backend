@@ -1,10 +1,10 @@
 package accessibility.reporting.tool.rest
 
 import accessibility.reporting.tool.*
+import accessibility.reporting.tool.assert
 import accessibility.reporting.tool.wcag.OrganizationUnit
 import accessibility.reporting.tool.wcag.ReportContent
 import accessibility.reporting.tool.wcag.Status
-import assert
 import com.fasterxml.jackson.databind.JsonNode
 import io.kotest.assertions.withClue
 import io.kotest.matchers.collections.shouldContainAll
