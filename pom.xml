@@ -14,7 +14,7 @@
         <ktor.version>3.4.0</ktor.version>
         <jackson.version>2.21.0</jackson.version>
         <admin.group>test_admin</admin.group>
-        <flyway.version>11.20.3</flyway.version>
+        <flyway.version>12.0.0</flyway.version>
         <hikaricp.version>7.0.2</hikaricp.version>
         <postgresql.version>42.7.9</postgresql.version>
         <kotliquery.version>1.9.1</kotliquery.version>
