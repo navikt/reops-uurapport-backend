@@ -18,8 +18,8 @@
         <hikaricp.version>7.0.2</hikaricp.version>
         <postgresql.version>42.7.9</postgresql.version>
         <kotliquery.version>1.9.1</kotliquery.version>
-        <logback.classic.version>1.5.28</logback.classic.version>
-        <logback.core.version>1.5.28</logback.core.version>
+        <logback.classic.version>1.5.29</logback.classic.version>
+        <logback.core.version>1.5.29</logback.core.version>
         <logstash.encoder.version>9.0</logstash.encoder.version>
         <kotlin.logging.version>3.0.5</kotlin.logging.version>
         <log4j.over.slf4j.version>2.0.17</log4j.over.slf4j.version>
