@@ -24,7 +24,8 @@ class ReportListItem(
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     @JsonProperty("date")
     val lastChanged: LocalDateTime,
-    val isPartOfNavNo: Boolean
+    val isPartOfNavNo: Boolean,
+    val reportType: String
 ) : ReportContent {
 
     companion object {
@@ -35,7 +36,8 @@ class ReportListItem(
             teamId = jsonNode.organizationUnit()?.id ?: "",
             teamName = jsonNode.organizationUnit()?.name ?: "",
             lastChanged = jsonNode.lastChangedOrDefault(),
-            isPartOfNavNo = jsonNode.isPartOfNavNo
+            isPartOfNavNo = jsonNode.isPartOfNavNo,
+            reportType = jsonNode["reportType"]?.asText() ?: "SINGLE"
         )
     }
 }
