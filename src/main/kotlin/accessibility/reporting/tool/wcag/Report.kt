@@ -137,6 +137,18 @@ open class Report(
     }
 
     fun toFullReportWithAccessPolicy(user: User?): FullReportWithAccessPolicy {
+        val warnings = mutableListOf<accessibility.reporting.tool.rest.ValidationWarning>()
+        
+        if (this.organizationUnit == null) {
+            warnings.add(
+                accessibility.reporting.tool.rest.ValidationWarning(
+                    field = "team",
+                    message = "This report currently has no team assigned. If it belongs to your team, please update it.",
+                    severity = "warning"
+                )
+            )
+        }
+        
         return FullReportWithAccessPolicy(
             reportId = this.reportId,
             descriptiveName = this.descriptiveName,
@@ -149,7 +161,8 @@ open class Report(
             hasWriteAccess = this.writeAccess(user),
             lastUpdatedBy = lastUpdatedBy?.email ?: author.email,
             isPartOfNavNo = this.isPartOfNavNo,
-            notes = this.notes
+            notes = this.notes,
+            validationWarnings = warnings
         )
     }
 }

@@ -178,7 +178,7 @@ class FullReportWithAccessPolicy(
     override val descriptiveName: String?,
     override val url: String,
     val team: OrganizationUnit?,
-    val author: Author,
+    val author: Author?,
     val successCriteria: List<SuccessCriterion>,
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     val created: LocalDateTime,
@@ -187,7 +187,8 @@ class FullReportWithAccessPolicy(
     val hasWriteAccess: Boolean,
     val lastUpdatedBy: String,
     val isPartOfNavNo: Boolean,
-    val notes: String
+    val notes: String,
+    val validationWarnings: List<ValidationWarning>
 ) : ReportContent
 
 

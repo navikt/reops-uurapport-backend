@@ -34,7 +34,7 @@ class AggregatedReportWithAccessPolicy(
     override val descriptiveName: String = report.descriptiveName ?: report.url
     override val url: String = report.url
     val team: OrganizationUnit? = report.organizationUnit
-    val author: Author = report.author
+    val author: Author? = report.author
     val successCriteria: List<SuccessCriterion> = report.successCriteria
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
@@ -43,8 +43,25 @@ class AggregatedReportWithAccessPolicy(
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     val lastChanged: LocalDateTime = report.lastChanged
     val hasWriteAccess: Boolean = report.writeAccess(user)
-    val lastUpdatedBy: String = report.lastUpdatedBy?.email ?: author.email
+    val lastUpdatedBy: String = report.lastUpdatedBy?.email ?: report.author.email
     val notes: String = report.notes
     val fromTeams = report.fromOrganizations.toSet()
     val fromReports = report.fromReports
+    val validationWarnings: List<ValidationWarning> = buildValidationWarnings(report)
+    
+    private fun buildValidationWarnings(report: AggregatedReport): List<ValidationWarning> {
+        val warnings = mutableListOf<ValidationWarning>()
+        
+        if (report.organizationUnit == null) {
+            warnings.add(
+                ValidationWarning(
+                    field = "team",
+                    message = "This report currently has no team assigned. If it belongs to your team, please update it.",
+                    severity = "warning"
+                )
+            )
+        }
+        
+        return warnings
+    }
 }

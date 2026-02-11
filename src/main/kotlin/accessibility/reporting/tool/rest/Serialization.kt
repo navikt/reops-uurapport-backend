@@ -7,6 +7,12 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.JsonNode
 import java.time.LocalDateTime
 
+data class ValidationWarning(
+    val field: String,
+    val message: String,
+    val severity: String = "warning"
+)
+
 class ReportListItem(
     @JsonProperty("id")
     override val reportId: String,

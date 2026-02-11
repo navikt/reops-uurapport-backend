@@ -20,6 +20,23 @@ fun Route.jsonapiadmin(reportRepository: ReportRepository, organizationRepositor
             organizationRepository.deleteOrgUnit(call.parameters["id"] ?: throw BadPathParameterException("id"))
             call.respond(HttpStatusCode.OK)
         }
+        get("reports/diagnostics") {
+            val allReports = reportRepository.getReports<Report>()
+            val reportsWithNullOrg = allReports.filter { it.organizationUnit == null }
+            
+            call.respond(mapOf(
+                "totalReports" to allReports.size,
+                "reportsWithNullOrganizationUnit" to reportsWithNullOrg.size,
+                "nullOrgReportIds" to reportsWithNullOrg.map { 
+                    mapOf(
+                        "reportId" to it.reportId,
+                        "url" to it.url,
+                        "descriptiveName" to (it.descriptiveName ?: "N/A"),
+                        "reportType" to it.reportType.name
+                    )
+                }
+            ))
+        }
         aggregatedAdminRoutes(reportRepository)
     }
 }
