@@ -1,8 +1,8 @@
-package accessibility.reporting.tool.authenitcation
+package accessibility.reporting.tool.authentication
 
 
-import accessibility.reporting.tool.authenitcation.User.Email
-import accessibility.reporting.tool.authenitcation.User.Oid
+import accessibility.reporting.tool.authentication.User.Email
+import accessibility.reporting.tool.authentication.User.Oid
 import accessibility.reporting.tool.rest.MissingPrincipalException
 import accessibility.reporting.tool.wcag.Author
 import com.auth0.jwk.JwkProvider
@@ -25,7 +25,6 @@ import io.ktor.server.response.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import mu.KotlinLogging
 import java.net.URL
 import java.util.concurrent.TimeUnit
 

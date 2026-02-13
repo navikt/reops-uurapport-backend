@@ -1,6 +1,6 @@
 package accessibility.reporting.tool
 
-import accessibility.reporting.tool.authenitcation.User
+import accessibility.reporting.tool.authentication.User
 import accessibility.reporting.tool.database.EmbeddedPostgresDatabase
 import accessibility.reporting.tool.database.OrganizationRepository
 import accessibility.reporting.tool.database.ReportRepository

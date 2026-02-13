@@ -1,8 +1,8 @@
 package accessibility.reporting.tool.wcag
 
 import accessibility.reporting.tool.assert
-import accessibility.reporting.tool.authenitcation.User
-import accessibility.reporting.tool.database.Admins
+import accessibility.reporting.tool.authentication.Admins
+import accessibility.reporting.tool.authentication.User
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.date.shouldBeAfter
 import io.kotest.matchers.shouldBe
