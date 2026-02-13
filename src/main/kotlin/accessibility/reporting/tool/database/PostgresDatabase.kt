@@ -1,7 +1,6 @@
 package accessibility.reporting.tool.database
 
 import accessibility.reporting.tool.Environment
-import accessibility.reporting.tool.authenitcation.User
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 

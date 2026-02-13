@@ -1,8 +1,6 @@
 package accessibility.reporting.tool.rest
 
-import accessibility.reporting.tool.authenitcation.Admins
-import accessibility.reporting.tool.authenitcation.User
-import accessibility.reporting.tool.authenitcation.user
+import accessibility.reporting.tool.authentication.user
 import accessibility.reporting.tool.database.OrganizationRepository
 import accessibility.reporting.tool.database.ReportRepository
 import accessibility.reporting.tool.wcag.*

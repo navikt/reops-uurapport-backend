@@ -1,7 +1,7 @@
 package accessibility.reporting.tool
 
-import accessibility.reporting.tool.authenitcation.AzureAuthContext
-import accessibility.reporting.tool.authenitcation.installAuthentication
+import accessibility.reporting.tool.authentication.AzureAuthContext
+import accessibility.reporting.tool.authentication.installAuthentication
 import accessibility.reporting.tool.database.Flyway
 import accessibility.reporting.tool.database.OrganizationRepository
 import accessibility.reporting.tool.database.PostgresDatabase

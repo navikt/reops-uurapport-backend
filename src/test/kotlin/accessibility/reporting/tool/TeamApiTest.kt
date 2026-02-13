@@ -1,6 +1,6 @@
 package accessibility.reporting.tool
 
-import accessibility.reporting.tool.authenitcation.User.Email
+import accessibility.reporting.tool.authentication.User.Email
 import accessibility.reporting.tool.wcag.Report
 import accessibility.reporting.tool.wcag.datestr
 import com.fasterxml.jackson.databind.JsonNode

@@ -1,7 +1,7 @@
 package accessibility.reporting.tool.wcag
 
-import accessibility.reporting.tool.authenitcation.Admins
-import accessibility.reporting.tool.authenitcation.User
+import accessibility.reporting.tool.authentication.Admins
+import accessibility.reporting.tool.authentication.User
 import accessibility.reporting.tool.database.LocalDateTimeHelper
 import accessibility.reporting.tool.rest.FullReportWithAccessPolicy
 import accessibility.reporting.tool.rest.NewTeam

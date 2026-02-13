@@ -1,7 +1,7 @@
 package accessibility.reporting.tool.rest
 
-import accessibility.reporting.tool.authenitcation.user
-import accessibility.reporting.tool.authenitcation.userOrNull
+import accessibility.reporting.tool.authentication.user
+import accessibility.reporting.tool.authentication.userOrNull
 import accessibility.reporting.tool.database.LocalDateTimeHelper
 import accessibility.reporting.tool.database.OrganizationRepository
 import accessibility.reporting.tool.database.ReportRepository

@@ -1,6 +1,6 @@
 package accessibility.reporting.tool.wcag
 
-import accessibility.reporting.tool.authenitcation.User
+import accessibility.reporting.tool.authentication.User
 import org.junit.jupiter.api.Assertions.*
 
 import org.junit.jupiter.api.Test
