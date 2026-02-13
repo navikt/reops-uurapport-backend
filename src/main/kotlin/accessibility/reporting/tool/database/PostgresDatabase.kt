@@ -40,8 +40,3 @@ class PostgresDatabase(environment: Environment) : Database {
         }
     }
 }
-
-object Admins {
-    private val admin_group = System.getenv("ADMIN_GROUP")
-    fun isAdmin(user: User) = user.groups.contains(admin_group)
-}

@@ -1,10 +1,10 @@
 package accessibility.reporting.tool.rest
 
+import accessibility.reporting.tool.authenitcation.Admins
 import accessibility.reporting.tool.authenitcation.User
 import accessibility.reporting.tool.authenitcation.user
 import accessibility.reporting.tool.database.OrganizationRepository
 import accessibility.reporting.tool.database.ReportRepository
-import accessibility.reporting.tool.rest.Admin.isAdmin
 import accessibility.reporting.tool.wcag.*
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -45,15 +45,11 @@ fun Route.jsonapiadmin(reportRepository: ReportRepository, organizationRepositor
 val AdminCheck = createRouteScopedPlugin("adminCheck") {
     on(AuthenticationChecked) { call ->
         val user = call.user
-        if (!isAdmin(user))
+        if (!user.isAdmin())
             throw NotAdminUserException(route = call.request.uri, userName = user.username)
     }
 }
 
-object Admin {
-    private val adminAzureGroup = System.getenv("ADMIN_GROUP")
-    fun isAdmin(user: User) = user.groups.contains(adminAzureGroup)
-}
 
 class NewAggregatedReportRequest(
     val descriptiveName: String,

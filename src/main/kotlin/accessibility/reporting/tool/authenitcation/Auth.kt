@@ -38,7 +38,7 @@ val ApplicationCall.userOrNull: User?
     get() = principal<User>()
 
 val ApplicationCall.adminUser: User
-    get() = user.also { if (!user.groups.contains(System.getenv("ADMIN_GROUP"))) throw NotAdminException() }
+    get() = user.also { if (!it.isAdmin()) throw NotAdminException() }
 
 fun Application.installAuthentication(azureAuthContext: AzureAuthContext) {
 
@@ -66,6 +66,8 @@ fun Application.installAuthentication(azureAuthContext: AzureAuthContext) {
 }
 
 data class User(val email: Email, val name: String?, val oid: Oid, val groups: List<String>) : Principal {
+
+    fun isAdmin() = Admins.isAdmin(this)
 
     @JvmInline
     value class Oid(private val s: String) {
@@ -134,3 +136,16 @@ internal data class OauthServerConfigurationMetadata(
 )
 
 internal class NotAdminException : Exception()
+
+object Admins {
+    private val adminGroup = System.getenv("ADMIN_GROUP") ?: "test_admin"
+    private val adminEmails = System.getenv("ADMINS")
+        ?.split(Regex("[,;]"))
+        ?.map { it.trim().lowercase() }
+        ?.filter { it.isNotBlank() }
+        ?: emptyList()
+
+    fun isAdmin(user: User): Boolean {
+        return user.groups.contains(adminGroup) || adminEmails.contains(user.email.str().lowercase())
+    }
+}

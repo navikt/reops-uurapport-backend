@@ -39,6 +39,6 @@ class UserDetails(
 ) {
     val name = user.name
     val email = user.email
-    val isAdmin = Admin.isAdmin(user)
+    val isAdmin = user.isAdmin()
 }
 
