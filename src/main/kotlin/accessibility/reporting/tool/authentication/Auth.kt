@@ -4,6 +4,7 @@ package accessibility.reporting.tool.authentication
 import accessibility.reporting.tool.authentication.User.Email
 import accessibility.reporting.tool.authentication.User.Oid
 import accessibility.reporting.tool.rest.MissingPrincipalException
+import accessibility.reporting.tool.rest.NotAdminUserException
 import accessibility.reporting.tool.wcag.Author
 import com.auth0.jwk.JwkProvider
 import com.auth0.jwk.JwkProviderBuilder
@@ -19,9 +20,11 @@ import io.ktor.http.*
 import io.ktor.serialization.jackson.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
+import io.ktor.server.auth.AuthenticationChecked
 import io.ktor.server.auth.jwt.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
+import io.ktor.server.routing.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -37,7 +40,19 @@ val ApplicationCall.userOrNull: User?
     get() = principal<User>()
 
 val ApplicationCall.adminUser: User
-    get() = user.also { if (!it.isAdmin()) throw NotAdminException() }
+    get() = user.also {
+        if (!it.isAdmin()) {
+            throw NotAdminUserException(this.request.path(), it.username)
+        }
+    }
+
+val AdminCheck = createRouteScopedPlugin("AdminCheck") {
+    on(AuthenticationChecked) { call ->
+        if (!call.user.isAdmin()) {
+            throw NotAdminUserException(call.request.path(), call.user.username)
+        }
+    }
+}
 
 fun Application.installAuthentication(azureAuthContext: AzureAuthContext) {
 

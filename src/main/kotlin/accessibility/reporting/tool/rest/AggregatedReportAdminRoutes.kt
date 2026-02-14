@@ -1,6 +1,8 @@
 package accessibility.reporting.tool.rest
 
+import accessibility.reporting.tool.authentication.AdminCheck
 import accessibility.reporting.tool.authentication.user
+import accessibility.reporting.tool.database.OrganizationRepository
 import accessibility.reporting.tool.database.ReportRepository
 import accessibility.reporting.tool.wcag.AggregatedReport
 import accessibility.reporting.tool.wcag.Report
@@ -10,7 +12,7 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
-fun Route.aggregatedAdminRoutes(reportRepository: ReportRepository) {
+fun Route.aggregatedAdminRoutes(reportRepository: ReportRepository, organizationRepository: OrganizationRepository) {
     route("reports/aggregated") {
         install(AdminCheck)
         route("new") {
@@ -28,10 +30,12 @@ fun Route.aggregatedAdminRoutes(reportRepository: ReportRepository) {
                     )
                 }
 
+                val organizationUnit = newReportRequest.teamId?.let { organizationRepository.getOrganizationUnit(it) }
+
                 val newReport = AggregatedReport(
                     url = newReportRequest.url,
                     descriptiveName = newReportRequest.descriptiveName,
-                    organizationUnit = null,
+                    organizationUnit = organizationUnit,
                     reports = reportRepository.getReports<Report>(ids = newReportRequest.reports),
                     user = call.user,
                     notes = newReportRequest.notes,
@@ -46,12 +50,15 @@ fun Route.aggregatedAdminRoutes(reportRepository: ReportRepository) {
                 val updateReportRequest = call.receive<AggregatedReportUpdateRequest>()
                 val id = call.parameters["id"] ?: throw IllegalArgumentException("Missing report {id}")
                 val originalReport = reportRepository.getReport<AggregatedReport>(id)
+                val organizationUnit = updateReportRequest.teamId?.let { organizationRepository.getOrganizationUnit(it) }
+
                 val updatedReport = originalReport?.updatedWith(
                     title = updateReportRequest.descriptiveName,
                     pageUrl = updateReportRequest.url,
                     notes = updateReportRequest.notes,
                     updateBy = call.user,
-                    changedCriteria = updateReportRequest.successCriteria
+                    changedCriteria = updateReportRequest.successCriteria,
+                    organizationUnit = organizationUnit
                 ) ?: throw ResourceNotFoundException(type = "Aggregated Report", id = id)
                 reportRepository.upsertReportReturning(updatedReport)
                 call.respond(HttpStatusCode.OK)
