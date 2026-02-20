@@ -1,6 +1,6 @@
 package accessibility.reporting.tool
 
-import accessibility.reporting.tool.authenitcation.User
+import accessibility.reporting.tool.authentication.User
 import accessibility.reporting.tool.database.toStringList
 import accessibility.reporting.tool.wcag.Report
 import io.kotest.assertions.withClue

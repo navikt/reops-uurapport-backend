@@ -58,7 +58,7 @@ services:
       --openid.well-known-url=http://host.docker.internal:8080/issueissue/.well-known/openid-configuration
       --ingress=http://localhost:3000
       --bind-address=0.0.0.0:3000
-      --upstream-host=host.docker.internal:8081
+      --upstream-host=localhost:8787
       --redis.address=redis:6379
       --redis.tls=false
       --log-level=debug

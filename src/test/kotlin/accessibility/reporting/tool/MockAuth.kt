@@ -1,6 +1,6 @@
 package accessibility.reporting.tool
 
-import accessibility.reporting.tool.authenitcation.User
+import accessibility.reporting.tool.authentication.User
 import com.auth0.jwt.JWT
 import com.auth0.jwt.JWTVerifier
 import com.auth0.jwt.algorithms.Algorithm
@@ -10,7 +10,6 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
-import kotlinx.css.header
 import java.util.*
 
 object JwtConfig {

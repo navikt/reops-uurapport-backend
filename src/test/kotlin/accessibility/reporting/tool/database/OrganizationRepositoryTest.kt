@@ -1,8 +1,8 @@
 package accessibility.reporting.tool.database
 
 import accessibility.reporting.tool.assert
-import accessibility.reporting.tool.authenitcation.User
-import accessibility.reporting.tool.authenitcation.User.Email
+import accessibility.reporting.tool.authentication.User
+import accessibility.reporting.tool.authentication.User.Email
 import accessibility.reporting.tool.dummyReportV4
 import accessibility.reporting.tool.wcag.OrganizationUnit
 import accessibility.reporting.tool.wcag.Report

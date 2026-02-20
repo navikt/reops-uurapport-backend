@@ -32,7 +32,8 @@ Default verdi på dev-logging er DEBUG, kan endres i [logback-dev.xml](app/src/m
 2. sett miljøvariablene (eksempel lenger nede på verdier):
    - AZURE_APP_CLIENT_ID
    - AZURE_APP_WELL_KNOWN_URL
-   - ADMINS
+   - ADMINS (komma-separert liste med e-poster for admin-tilgang)
+   - ADMIN_GROUP (Azure-gruppe ID for admin-tilgang, default 'test_admin' lokalt)
    - DB_HOST
    - DB_PORT
    - DB_DATABASE
@@ -44,7 +45,7 @@ Default verdi på dev-logging er DEBUG, kan endres i [logback-dev.xml](app/src/m
 3. se appen på `http://localhost:8787`
 4. optional, generer token for å kalle api-et:
     ```
-    curl -X POST http://host.docker.internal:8080/issueissue/token \
+    curl -X POST http://localhost:8080/issueissue/token \
       -H 'Content-Type: application/x-www-form-urlencoded' \
       -d 'grant_type=client_credentials' \
       -d 'client_id=a11y' \
@@ -58,7 +59,7 @@ Default verdi på dev-logging er DEBUG, kan endres i [logback-dev.xml](app/src/m
     ```
 #### Example miljøvariabler for lokal kjøring
 ```
-ADMINS=carl@good.morning;AZURE_APP_CLIENT_ID=a11y;AZURE_APP_WELL_KNOWN_URL=http://host.docker.internal:8080/issueissue/.well-known/openid-configuration;CALL_LOGGING_LEVEL=DEBUG;CORS_ALLOWED_ORIGIN=*;DB_DATABASE=a11y;DB_HOST=localhost;DB_PASSWORD=a11y;DB_PORT=5432;DB_USERNAME=postgres;PORT=8787;ENV=local
+ADMIN_GROUP=test_admin;ADMINS=carl@good.morning;AZURE_APP_CLIENT_ID=a11y;AZURE_APP_WELL_KNOWN_URL=http://localhost:8080/issueissue/.well-known/openid-configuration;CALL_LOGGING_LEVEL=DEBUG;CORS_ALLOWED_ORIGIN=*;DB_DATABASE=a11y;DB_HOST=localhost;DB_PASSWORD=a11y;DB_PORT=5432;DB_USERNAME=postgres;ENV=local;PORT=8787
 ```
 
 ### Oppdatere apidocs

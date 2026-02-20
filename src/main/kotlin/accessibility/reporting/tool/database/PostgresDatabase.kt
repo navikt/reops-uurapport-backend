@@ -1,7 +1,6 @@
 package accessibility.reporting.tool.database
 
 import accessibility.reporting.tool.Environment
-import accessibility.reporting.tool.authenitcation.User
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 
@@ -39,9 +38,4 @@ class PostgresDatabase(environment: Environment) : Database {
             return config
         }
     }
-}
-
-object Admins {
-    private val admin_group = System.getenv("ADMIN_GROUP")
-    fun isAdmin(user: User) = user.groups.contains(admin_group)
 }

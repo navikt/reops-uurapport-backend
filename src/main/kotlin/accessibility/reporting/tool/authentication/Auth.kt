@@ -1,9 +1,10 @@
-package accessibility.reporting.tool.authenitcation
+package accessibility.reporting.tool.authentication
 
 
-import accessibility.reporting.tool.authenitcation.User.Email
-import accessibility.reporting.tool.authenitcation.User.Oid
+import accessibility.reporting.tool.authentication.User.Email
+import accessibility.reporting.tool.authentication.User.Oid
 import accessibility.reporting.tool.rest.MissingPrincipalException
+import accessibility.reporting.tool.rest.NotAdminUserException
 import accessibility.reporting.tool.wcag.Author
 import com.auth0.jwk.JwkProvider
 import com.auth0.jwk.JwkProviderBuilder
@@ -19,13 +20,14 @@ import io.ktor.http.*
 import io.ktor.serialization.jackson.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
+import io.ktor.server.auth.AuthenticationChecked
 import io.ktor.server.auth.jwt.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
+import io.ktor.server.routing.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import mu.KotlinLogging
 import java.net.URL
 import java.util.concurrent.TimeUnit
 
@@ -38,7 +40,19 @@ val ApplicationCall.userOrNull: User?
     get() = principal<User>()
 
 val ApplicationCall.adminUser: User
-    get() = user.also { if (!user.groups.contains(System.getenv("ADMIN_GROUP"))) throw NotAdminException() }
+    get() = user.also {
+        if (!it.isAdmin()) {
+            throw NotAdminUserException(this.request.path(), it.username)
+        }
+    }
+
+val AdminCheck = createRouteScopedPlugin("AdminCheck") {
+    on(AuthenticationChecked) { call ->
+        if (!call.user.isAdmin()) {
+            throw NotAdminUserException(call.request.path(), call.user.username)
+        }
+    }
+}
 
 fun Application.installAuthentication(azureAuthContext: AzureAuthContext) {
 
@@ -66,6 +80,8 @@ fun Application.installAuthentication(azureAuthContext: AzureAuthContext) {
 }
 
 data class User(val email: Email, val name: String?, val oid: Oid, val groups: List<String>) : Principal {
+
+    fun isAdmin() = Admins.isAdmin(this)
 
     @JvmInline
     value class Oid(private val s: String) {
@@ -134,3 +150,16 @@ internal data class OauthServerConfigurationMetadata(
 )
 
 internal class NotAdminException : Exception()
+
+object Admins {
+    private val adminGroup = System.getenv("ADMIN_GROUP") ?: "test_admin"
+    private val adminEmails = System.getenv("ADMINS")
+        ?.split(Regex("[,;]"))
+        ?.map { it.trim().lowercase() }
+        ?.filter { it.isNotBlank() }
+        ?: emptyList()
+
+    fun isAdmin(user: User): Boolean {
+        return user.groups.contains(adminGroup) || adminEmails.contains(user.email.str().lowercase())
+    }
+}

@@ -1,6 +1,6 @@
 package accessibility.reporting.tool.database
 
-import accessibility.reporting.tool.authenitcation.User.Oid
+import accessibility.reporting.tool.authentication.User.Oid
 import accessibility.reporting.tool.wcag.*
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import kotliquery.queryOf

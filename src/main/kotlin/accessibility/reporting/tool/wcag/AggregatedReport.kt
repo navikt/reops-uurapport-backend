@@ -1,6 +1,6 @@
 package accessibility.reporting.tool.wcag
 
-import accessibility.reporting.tool.authenitcation.User
+import accessibility.reporting.tool.authentication.User
 import accessibility.reporting.tool.database.LocalDateTimeHelper
 import accessibility.reporting.tool.database.LocalDateTimeHelper.toLocalDateTimeOrNull
 import accessibility.reporting.tool.rest.SuccessCriterionUpdate
@@ -108,14 +108,15 @@ class AggregatedReport : Report {
         pageUrl: String?,
         notes: String?,
         updateBy: User,
-        changedCriteria: List<SuccessCriterionUpdate>?
+        changedCriteria: List<SuccessCriterionUpdate>?,
+        organizationUnit: OrganizationUnit? = null,
     ): AggregatedReport =
         AggregatedReport(
             Report(
                 reportId = this.reportId,
                 url = pageUrl ?: this.url,
                 descriptiveName = title ?: this.descriptiveName,
-                organizationUnit = this.organizationUnit,
+                organizationUnit = organizationUnit ?: this.organizationUnit,
                 version = version,
                 author = author,
                 successCriteria = changedCriteria?.let { copyCriteriaList(changedCriteria) } ?: this.successCriteria,

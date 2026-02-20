@@ -1,6 +1,6 @@
 package accessibility.reporting.tool.wcag
 
-import accessibility.reporting.tool.authenitcation.User
+import accessibility.reporting.tool.authentication.User
 import accessibility.reporting.tool.database.LocalDateTimeHelper
 import accessibility.reporting.tool.wcag.SuccessCriterionInfo.Companion.operable
 import accessibility.reporting.tool.wcag.SuccessCriterionInfo.Companion.perceivable

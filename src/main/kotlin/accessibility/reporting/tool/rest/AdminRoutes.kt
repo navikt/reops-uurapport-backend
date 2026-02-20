@@ -1,15 +1,10 @@
 package accessibility.reporting.tool.rest
 
-import accessibility.reporting.tool.authenitcation.User
-import accessibility.reporting.tool.authenitcation.user
+import accessibility.reporting.tool.authentication.AdminCheck
 import accessibility.reporting.tool.database.OrganizationRepository
 import accessibility.reporting.tool.database.ReportRepository
-import accessibility.reporting.tool.rest.Admin.isAdmin
 import accessibility.reporting.tool.wcag.*
 import io.ktor.http.*
-import io.ktor.server.application.*
-import io.ktor.server.auth.*
-import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
@@ -37,29 +32,17 @@ fun Route.jsonapiadmin(reportRepository: ReportRepository, organizationRepositor
                 }
             ))
         }
-        aggregatedAdminRoutes(reportRepository)
+        aggregatedAdminRoutes(reportRepository, organizationRepository)
     }
 }
 
-
-val AdminCheck = createRouteScopedPlugin("adminCheck") {
-    on(AuthenticationChecked) { call ->
-        val user = call.user
-        if (!isAdmin(user))
-            throw NotAdminUserException(route = call.request.uri, userName = user.username)
-    }
-}
-
-object Admin {
-    private val adminAzureGroup = System.getenv("ADMIN_GROUP")
-    fun isAdmin(user: User) = user.groups.contains(adminAzureGroup)
-}
 
 class NewAggregatedReportRequest(
     val descriptiveName: String,
     val url: String,
     val reports: List<String>? = null,
     val notes: String,
+    val teamId: String? = null,
     val startDate: String? = null,
     val endDate: String? = null
 ) {
@@ -88,7 +71,7 @@ data class AggregatedReportUpdateRequest(
     val descriptiveName: String? = null,
     val url: String? = null,
     val successCriteria: List<SuccessCriterionUpdate>? = null,
-    val notes: String? = null
+    val notes: String? = null,
+    val teamId: String? = null
 )
-
 

@@ -1,6 +1,8 @@
 package accessibility.reporting.tool.rest
 
-import accessibility.reporting.tool.authenitcation.user
+import accessibility.reporting.tool.authentication.AdminCheck
+import accessibility.reporting.tool.authentication.user
+import accessibility.reporting.tool.database.OrganizationRepository
 import accessibility.reporting.tool.database.ReportRepository
 import accessibility.reporting.tool.wcag.AggregatedReport
 import accessibility.reporting.tool.wcag.Report
@@ -13,7 +15,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 
-fun Route.aggregatedAdminRoutes(reportRepository: ReportRepository) {
+fun Route.aggregatedAdminRoutes(reportRepository: ReportRepository, organizationRepository: OrganizationRepository) {
     route("reports/aggregated") {
         install(AdminCheck)
         route("new") {
@@ -69,12 +71,18 @@ fun Route.aggregatedAdminRoutes(reportRepository: ReportRepository) {
                 when {
                     sourceReports.isEmpty() -> {
                         if (newReportRequest.reports != null) {
-                            throw BadAggregatedReportRequestException("Could not find reports with ids ${newReportRequest.reports}")
+                            if (dateRange != null) {
+                                throw BadAggregatedReportRequestException("No reports from the provided list fall within the specified date range")
+                            } else {
+                                throw BadAggregatedReportRequestException("Could not find reports with ids ${newReportRequest.reports}")
+                            }
                         } else {
                             throw BadAggregatedReportRequestException("No reports found in the specified date range")
                         }
                     }
-                    newReportRequest.reports != null && sourceReports.size != newReportRequest.reports.size -> {
+                    newReportRequest.reports != null && dateRange == null && sourceReports.size != newReportRequest.reports.size -> {
+                        // Only check size mismatch if we're NOT using date range filtering
+                        // (date range filtering may legitimately reduce the number of reports)
                         throw BadAggregatedReportRequestException(
                             "Could not find reports with ids ${newReportRequest.diff(sourceReports)}"
                         )
@@ -86,10 +94,12 @@ fun Route.aggregatedAdminRoutes(reportRepository: ReportRepository) {
                     }
                 }
 
+                val organizationUnit = newReportRequest.teamId?.let { organizationRepository.getOrganizationUnit(it) }
+
                 val newReport = AggregatedReport(
                     url = newReportRequest.url,
                     descriptiveName = newReportRequest.descriptiveName,
-                    organizationUnit = null,
+                    organizationUnit = organizationUnit,
                     reports = sourceReports,
                     user = call.user,
                     notes = newReportRequest.notes,
@@ -104,12 +114,15 @@ fun Route.aggregatedAdminRoutes(reportRepository: ReportRepository) {
                 val updateReportRequest = call.receive<AggregatedReportUpdateRequest>()
                 val id = call.parameters["id"] ?: throw IllegalArgumentException("Missing report {id}")
                 val originalReport = reportRepository.getReport<AggregatedReport>(id)
+                val organizationUnit = updateReportRequest.teamId?.let { organizationRepository.getOrganizationUnit(it) }
+
                 val updatedReport = originalReport?.updatedWith(
                     title = updateReportRequest.descriptiveName,
                     pageUrl = updateReportRequest.url,
                     notes = updateReportRequest.notes,
                     updateBy = call.user,
-                    changedCriteria = updateReportRequest.successCriteria
+                    changedCriteria = updateReportRequest.successCriteria,
+                    organizationUnit = organizationUnit
                 ) ?: throw ResourceNotFoundException(type = "Aggregated Report", id = id)
                 reportRepository.upsertReportReturning(updatedReport)
                 call.respond(HttpStatusCode.OK)

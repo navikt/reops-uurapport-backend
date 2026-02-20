@@ -1,11 +1,10 @@
 package accessibility.reporting.tool.rest
 
-import accessibility.reporting.tool.authenitcation.User
-import accessibility.reporting.tool.authenitcation.user
+import accessibility.reporting.tool.authentication.User
+import accessibility.reporting.tool.authentication.user
 import accessibility.reporting.tool.database.ReportRepository
 import accessibility.reporting.tool.wcag.*
 import com.fasterxml.jackson.annotation.JsonFormat
-import io.ktor.server.application.*
 import io.ktor.server.plugins.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
