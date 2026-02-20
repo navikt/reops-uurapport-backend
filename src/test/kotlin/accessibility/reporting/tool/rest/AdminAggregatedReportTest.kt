@@ -95,6 +95,7 @@ class AdminAggregatedReportTest : TestApi() {
                    "descriptiveName": "Some title",
                    "url":"Some url", 
                    "notes": "Here is a noooote",
+                   "teamId": "${testOrg.id}",
                    "reports": ${testReports.jsonList()}
                 }
             """.trimIndent()
@@ -128,6 +129,7 @@ class AdminAggregatedReportTest : TestApi() {
                    "descriptiveName": "Some title",
                    "url":"Some url", 
                    "notes": "Here is a noooote",
+                   "teamId": "${testOrg.id}",
                    "reports": ${(testReports + testAggregatedReports.first()).jsonList()}
                 }
             """.trimIndent()
@@ -144,6 +146,7 @@ class AdminAggregatedReportTest : TestApi() {
                    "descriptiveName": "Some title",
                    "url":"Some url", 
                    "notes": "Here is a noooote",
+                   "teamId": "${testOrg.id}",
                    "reports": ${(testReports + dummyReportV4()).jsonList()}
                 }
             """.trimIndent()
@@ -157,6 +160,7 @@ class AdminAggregatedReportTest : TestApi() {
                    "descriptiveName": "Some title",
                    "url":"Some url", 
                    "notes": "Here is a noooote",
+                   "teamId": "${testOrg.id}",
                    "reports": ${listOf(dummyReportV4(), dummyReportV4(), dummyReportV4()).jsonList()}
                 }
             """.trimIndent()
@@ -178,6 +182,7 @@ class AdminAggregatedReportTest : TestApi() {
                    "descriptiveName": "Date Range Aggregated Report",
                    "url":"https://date-range.test.no", 
                    "notes": "Created from date range",
+                   "teamId": "${testOrg.id}",
                    "startDate": "$startDate",
                    "endDate": "$endDate"
                 }
@@ -208,6 +213,7 @@ class AdminAggregatedReportTest : TestApi() {
                    "descriptiveName": "Invalid date range",
                    "url":"https://test.no", 
                    "notes": "This should fail",
+                   "teamId": "${testOrg.id}",
                    "startDate": "2025-12-31",
                    "endDate": "2024-01-01"
                 }
@@ -225,6 +231,7 @@ class AdminAggregatedReportTest : TestApi() {
                    "descriptiveName": "Invalid date format",
                    "url":"https://test.no", 
                    "notes": "This should fail",
+                   "teamId": "${testOrg.id}",
                    "startDate": "not-a-date",
                    "endDate": "2024-01-01"
                 }
@@ -241,7 +248,8 @@ class AdminAggregatedReportTest : TestApi() {
                 {
                    "descriptiveName": "Missing filters",
                    "url":"https://test.no", 
-                   "notes": "This should fail"
+                   "notes": "This should fail",
+                   "teamId": "${testOrg.id}"
                 }
             """.trimIndent()
                 )
@@ -257,6 +265,7 @@ class AdminAggregatedReportTest : TestApi() {
                    "descriptiveName": "Missing endDate",
                    "url":"https://test.no", 
                    "notes": "This should fail",
+                   "teamId": "${testOrg.id}",
                    "startDate": "2024-01-01"
                 }
             """.trimIndent()
@@ -273,6 +282,7 @@ class AdminAggregatedReportTest : TestApi() {
                    "descriptiveName": "ISO DateTime Format",
                    "url":"https://datetime.test.no", 
                    "notes": "With time component",
+                   "teamId": "${testOrg.id}",
                    "startDate": "2020-01-01T00:00:00",
                    "endDate": "2030-12-31T23:59:59"
                 }
@@ -309,6 +319,7 @@ class AdminAggregatedReportTest : TestApi() {
                    "descriptiveName": "Filtered by Date Range",
                    "url":"https://filtered.test.no", 
                    "notes": "Should only include reports within date range",
+                   "teamId": "${testOrg.id}",
                    "reports": ["${oldReport.reportId}", "${recentReport.reportId}"],
                    "startDate": "2024-01-01",
                    "endDate": "2024-12-31"

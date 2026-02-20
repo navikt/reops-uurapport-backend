@@ -42,7 +42,7 @@ class NewAggregatedReportRequest(
     val url: String,
     val reports: List<String>? = null,
     val notes: String,
-    val teamId: String? = null,
+    val teamId: String,
     val startDate: String? = null,
     val endDate: String? = null
 ) {
@@ -53,7 +53,7 @@ class NewAggregatedReportRequest(
 
     fun validate() {
         when {
-            reports != null && reports.isNotEmpty() -> {
+            !reports.isNullOrEmpty() -> {
                 // Using explicit report IDs - valid
                 // If date range is also provided, it will filter these IDs by the date range
             }
