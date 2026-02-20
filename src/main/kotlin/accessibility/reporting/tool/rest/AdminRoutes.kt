@@ -58,12 +58,29 @@ object Admin {
 class NewAggregatedReportRequest(
     val descriptiveName: String,
     val url: String,
-    val reports: List<String>,
-    val notes: String
+    val reports: List<String>? = null,
+    val notes: String,
+    val startDate: String? = null,
+    val endDate: String? = null
 ) {
     fun diff(foundReports: List<ReportContent>): String {
         val foundIds = foundReports.map { it.reportId }
-        return reports.filterNot { foundIds.contains(it) }.joinToString(",")
+        return (reports ?: emptyList()).filterNot { foundIds.contains(it) }.joinToString(",")
+    }
+
+    fun validate() {
+        when {
+            reports != null && reports.isNotEmpty() -> {
+                // Using explicit report IDs - valid
+                // If date range is also provided, it will filter these IDs by the date range
+            }
+            startDate != null && endDate != null -> {
+                // Using date range - valid
+            }
+            else -> throw BadAggregatedReportRequestException(
+                "Must provide either 'reports' (list of report IDs), both 'startDate' and 'endDate', or both"
+            )
+        }
     }
 }
 

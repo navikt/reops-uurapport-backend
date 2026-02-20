@@ -164,6 +164,172 @@ class AdminAggregatedReportTest : TestApi() {
             }.status shouldBe HttpStatusCode.BadRequest
 
         }
+
+        @Test
+        fun `creates aggregated report using date range filter`() = withTestApi {
+            // Get a date before all test reports
+            val startDate = "2020-01-01"
+            val endDate = "2030-12-31"
+
+            val response = postWithAdminAssertion("$adminRoute/reports/aggregated/new", HttpStatusCode.Created) {
+                setBody(
+                    """
+                {
+                   "descriptiveName": "Date Range Aggregated Report",
+                   "url":"https://date-range.test.no", 
+                   "notes": "Created from date range",
+                   "startDate": "$startDate",
+                   "endDate": "$endDate"
+                }
+            """.trimIndent()
+                )
+            }
+
+            val id = response.json()["id"].asText()
+            client.getWithJwtUser(testUser, "api/reports/aggregated/$id").assert {
+                status shouldBe OK
+                val body = json()
+                body["descriptiveName"].asText() shouldBe "Date Range Aggregated Report"
+                body["notes"].asText() shouldBe "Created from date range"
+                // Should have all SINGLE reports (not aggregated ones)
+                body["fromReports"].toList().assert {
+                    size shouldBe 3
+                    map { it["title"].asText() } shouldContainAll testReports.map { it.descriptiveName }
+                }
+            }
+        }
+
+        @Test
+        fun `bad request when startDate is after endDate`() = withTestApi {
+            postWithAdminAssertion("$adminRoute/reports/aggregated/new", HttpStatusCode.BadRequest) {
+                setBody(
+                    """
+                {
+                   "descriptiveName": "Invalid date range",
+                   "url":"https://test.no", 
+                   "notes": "This should fail",
+                   "startDate": "2025-12-31",
+                   "endDate": "2024-01-01"
+                }
+            """.trimIndent()
+                )
+            }.status shouldBe HttpStatusCode.BadRequest
+        }
+
+        @Test
+        fun `bad request when date format is invalid`() = withTestApi {
+            postWithAdminAssertion("$adminRoute/reports/aggregated/new", HttpStatusCode.BadRequest) {
+                setBody(
+                    """
+                {
+                   "descriptiveName": "Invalid date format",
+                   "url":"https://test.no", 
+                   "notes": "This should fail",
+                   "startDate": "not-a-date",
+                   "endDate": "2024-01-01"
+                }
+            """.trimIndent()
+                )
+            }.status shouldBe HttpStatusCode.BadRequest
+        }
+
+        @Test
+        fun `bad request when no reports or date range provided`() = withTestApi {
+            postWithAdminAssertion("$adminRoute/reports/aggregated/new", HttpStatusCode.BadRequest) {
+                setBody(
+                    """
+                {
+                   "descriptiveName": "Missing filters",
+                   "url":"https://test.no", 
+                   "notes": "This should fail"
+                }
+            """.trimIndent()
+                )
+            }.status shouldBe HttpStatusCode.BadRequest
+        }
+
+        @Test
+        fun `bad request when only startDate is provided`() = withTestApi {
+            postWithAdminAssertion("$adminRoute/reports/aggregated/new", HttpStatusCode.BadRequest) {
+                setBody(
+                    """
+                {
+                   "descriptiveName": "Missing endDate",
+                   "url":"https://test.no", 
+                   "notes": "This should fail",
+                   "startDate": "2024-01-01"
+                }
+            """.trimIndent()
+                )
+            }.status shouldBe HttpStatusCode.BadRequest
+        }
+
+        @Test
+        fun `accepts ISO datetime format with time component`() = withTestApi {
+            val response = postWithAdminAssertion("$adminRoute/reports/aggregated/new", HttpStatusCode.Created) {
+                setBody(
+                    """
+                {
+                   "descriptiveName": "ISO DateTime Format",
+                   "url":"https://datetime.test.no", 
+                   "notes": "With time component",
+                   "startDate": "2020-01-01T00:00:00",
+                   "endDate": "2030-12-31T23:59:59"
+                }
+            """.trimIndent()
+                )
+            }
+
+            response.status shouldBe HttpStatusCode.Created
+        }
+
+        @Test
+        fun `filters report IDs by date range when both are provided`() = withTestApi {
+            // Create reports with specific dates
+            val oldReport = dummyReportV4(
+                orgUnit = testOrg,
+                user = adminUser,
+                descriptiveName = "Old Report"
+            ).copy(lastChanged = java.time.LocalDateTime.of(2020, 1, 1, 0, 0))
+
+            val recentReport = dummyReportV4(
+                orgUnit = testOrg,
+                user = adminUser,
+                descriptiveName = "Recent Report"
+            ).copy(lastChanged = java.time.LocalDateTime.of(2024, 6, 15, 0, 0))
+
+            reportRepository.upsertReport(oldReport)
+            reportRepository.upsertReport(recentReport)
+
+            // Request both report IDs but with date range that only includes the recent one
+            val response = postWithAdminAssertion("$adminRoute/reports/aggregated/new", HttpStatusCode.Created) {
+                setBody(
+                    """
+                {
+                   "descriptiveName": "Filtered by Date Range",
+                   "url":"https://filtered.test.no", 
+                   "notes": "Should only include reports within date range",
+                   "reports": ["${oldReport.reportId}", "${recentReport.reportId}"],
+                   "startDate": "2024-01-01",
+                   "endDate": "2024-12-31"
+                }
+            """.trimIndent()
+                )
+            }
+
+            val id = response.json()["id"].asText()
+            client.getWithJwtUser(adminUser, "api/reports/aggregated/$id").assert {
+                status shouldBe OK
+                val body = json()
+                body["fromReports"].toList().assert {
+                    // Should only include the recent report, not the old one
+                    size shouldBe 1
+                    first()["reportId"].asText() shouldBe recentReport.reportId
+                    first()["title"].asText() shouldBe "Recent Report"
+                    map { it["reportId"].asText() } shouldNotContain oldReport.reportId
+                }
+            }
+        }
     }
 
 
