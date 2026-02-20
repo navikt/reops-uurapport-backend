@@ -6,6 +6,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import kotliquery.queryOf
 import org.postgresql.util.PGobject
 import java.lang.StringBuilder
+import java.time.LocalDateTime
 
 
 class ReportRepository(database: Database) : BaseRepository(database) {
@@ -59,6 +60,38 @@ class ReportRepository(database: Database) : BaseRepository(database) {
             }
             throw e
         }
+
+    inline fun <reified T> getReportsByDateRange(
+        startDate: LocalDateTime,
+        endDate: LocalDateTime,
+        type: ReportType? = null
+    ): List<T> =
+        try {
+            database.list {
+                queryOf(
+                    StringBuilder("select created, last_changed, report_data ->> 'version' as version, report_data from report")
+                        .apply {
+                            append(" where last_changed BETWEEN :startDate AND :endDate")
+                            if (type != null) {
+                                append(" AND report_data ->> 'reportType' = :type")
+                            }
+                            append(" ORDER BY last_changed DESC")
+                        }
+                        .toString(),
+                    mapOf(
+                        "startDate" to startDate,
+                        "endDate" to endDate,
+                        "type" to type?.name
+                    )
+                ).map { row -> report<T>(row) }.asList
+            }
+        } catch (e: Exception) {
+            log.error {
+                "Error fetching reports by date range: startDate=$startDate, endDate=$endDate, type=$type - ${e.message}"
+            }
+            throw e
+        }
+
     fun deleteReport(reportId: String) =
         database.update {
             queryOf(
