@@ -38,11 +38,10 @@ jobs:
           team: team-researchops
           identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
-      - name: Show image and SHA for later prod deploy
+      - name: Show image for later prod deploy
         run: |
           echo "========================================"
           echo "image=${{ steps.docker-build-push.outputs.image }}"
-          echo "version=${{ github.sha }}"
           echo "========================================"
 
     outputs:
@@ -61,4 +60,4 @@ jobs:
         env:
           CLUSTER: dev-gcp
           RESOURCE: .nais/nais-dev.yaml
-          VAR: image=${{ needs.build.outputs.image }},version=${{ github.sha }}
+          VAR: image=${{ needs.build.outputs.image }}
