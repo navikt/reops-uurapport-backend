@@ -62,6 +62,15 @@ Default verdi på dev-logging er DEBUG, kan endres i [logback-dev.xml](app/src/m
 ADMIN_GROUP=test_admin;ADMINS=carl@good.morning;AZURE_APP_CLIENT_ID=a11y;AZURE_APP_WELL_KNOWN_URL=http://localhost:8080/issueissue/.well-known/openid-configuration;CALL_LOGGING_LEVEL=DEBUG;CORS_ALLOWED_ORIGIN=*;DB_DATABASE=a11y;DB_HOST=localhost;DB_PASSWORD=a11y;DB_PORT=5432;DB_USERNAME=postgres;ENV=local;PORT=8787
 ```
 
+##### CLI example
+```
+mvn clean install
+```
+
+```
+CORS_ALLOWED_ORIGIN=* DB_HOST=localhost DB_PORT=5432 DB_DATABASE=a11y DB_USERNAME=postgres DB_PASSWORD=a11y ADMIN_GROUP=test_admin ADMINS=carl@good.morning AZURE_APP_CLIENT_ID=a11y AZURE_APP_WELL_KNOWN_URL=http://localhost:8080/issueissue/.well-known/openid-configuration PORT=8787 ENV=local mvn exec:java -Dexec.mainClass=accessibility.reporting.tool.AppKt
+```
+
 ### Oppdatere apidocs
 Apiet er beskrevet i filen [documentation.yaml](app/src/main/resources/static/openapi/documentation.yaml)
 Du kan oppdatere manuelt eller bruke en plugin (f.eks openapi generator for ktor i intellij)

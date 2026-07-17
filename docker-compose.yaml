@@ -55,7 +55,7 @@ services:
       - "3000:3000"
     command: >
       --openid.client-id=a11y
-      --openid.well-known-url=http://host.docker.internal:8080/issueissue/.well-known/openid-configuration
+      --openid.well-known-url=http://localhost:8080/issueissue/.well-known/openid-configuration
       --ingress=http://localhost:3000
       --bind-address=0.0.0.0:3000
       --upstream-host=localhost:8787
