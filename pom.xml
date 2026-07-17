@@ -10,27 +10,27 @@
 
 	<properties>
 		<java.version>21</java.version>
-		<kotlin.version>2.3.21</kotlin.version>
-        <ktor.version>3.5.0</ktor.version>
-        <jackson.version>2.21.4</jackson.version>
-        <jackson3.version>3.1.4</jackson3.version>
-        <netty.version>4.2.15.Final</netty.version>
+		<kotlin.version>2.4.10</kotlin.version>
+        <ktor.version>3.5.1</ktor.version>
+        <jackson.version>2.22.1</jackson.version>
+        <jackson3.version>3.2.1</jackson3.version>
+        <netty.version>4.2.16.Final</netty.version>
         <admin.group>test_admin</admin.group>
-        <flyway.version>12.6.1</flyway.version>
-        <hikaricp.version>7.0.2</hikaricp.version>
-        <postgresql.version>42.7.11</postgresql.version>
+        <flyway.version>12.11.0</flyway.version>
+        <hikaricp.version>7.1.0</hikaricp.version>
+        <postgresql.version>42.7.13</postgresql.version>
         <kotliquery.version>1.9.1</kotliquery.version>
-        <logback.classic.version>1.5.35</logback.classic.version>
-        <logback.core.version>1.5.35</logback.core.version>
+        <logback.classic.version>1.5.38</logback.classic.version>
+        <logback.core.version>1.5.38</logback.core.version>
         <logstash.encoder.version>9.0</logstash.encoder.version>
         <kotlin.logging.version>3.0.5</kotlin.logging.version>
         <log4j.over.slf4j.version>2.0.18</log4j.over.slf4j.version>
         <kotlin.css.version>1.0.0-pre.860</kotlin.css.version>
-        <micrometer.prometheus.version>1.16.5</micrometer.prometheus.version>
-        <junit.version>6.1.0</junit.version>
-		<kotest.version>6.1.11</kotest.version>
-        <mockk.version>1.14.9</mockk.version>
-        <surefire.version>3.5.5</surefire.version>
+        <micrometer.prometheus.version>1.17.0</micrometer.prometheus.version>
+        <junit.version>6.1.2</junit.version>
+		<kotest.version>6.2.2</kotest.version>
+        <mockk.version>1.14.11</mockk.version>
+        <surefire.version>3.5.6</surefire.version>
         <shade.plugin.version>3.6.2</shade.plugin.version>
 	</properties>
 
