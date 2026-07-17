@@ -84,7 +84,10 @@ fun dummyAggregatedReportV2(
     )
 
 fun Application.mockEmptyAuth() = authentication {
-    jwt { skipWhen { true } }
+    jwt {
+        skipWhen { true }
+        validate { null }
+    }
 }
 
 class TestUser(email: String? = null, val name: String, groups: List<String> = listOf()) {
