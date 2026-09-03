@@ -1,6 +1,7 @@
 package accessibility.reporting.tool
 
 import accessibility.reporting.tool.authentication.AzureAuthContext
+import accessibility.reporting.tool.authentication.SKIP_AUTH_PROVIDER
 import accessibility.reporting.tool.authentication.installAuthentication
 import accessibility.reporting.tool.database.Flyway
 import accessibility.reporting.tool.database.OrganizationRepository
@@ -143,7 +144,7 @@ fun Application.api(
     }
 
     routing {
-        authenticate {
+        val apiRoutes: Route.() -> Unit = {
             route("api") {
                 jsonApiReports(organizationRepository = organizationRepository, reportRepository = reportRepository)
                 jsonapiteams(organizationRepository = organizationRepository)
@@ -151,6 +152,11 @@ fun Application.api(
                 jsonapiadmin(reportRepository = reportRepository, organizationRepository = organizationRepository)
                 jsonApiAggregatedReports(reportRepository = reportRepository)
             }
+        }
+        if (System.getenv("SKIP_AUTH")?.toBoolean() == true) {
+            authenticate(SKIP_AUTH_PROVIDER) { apiRoutes() }
+        } else {
+            authenticate { apiRoutes() }
         }
 
         meta(prometehusRegistry)

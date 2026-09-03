@@ -36,6 +36,8 @@ val ApplicationCall.user: User
         route = this.request.path(),
         expectedPrincipal = "User"
     )
+
+const val SKIP_AUTH_PROVIDER = "skip-auth"
 val ApplicationCall.userOrNull: User?
     get() = principal<User>()
 
@@ -55,25 +57,46 @@ val AdminCheck = createRouteScopedPlugin("AdminCheck") {
 }
 
 fun Application.installAuthentication(azureAuthContext: AzureAuthContext) {
+    val skipAuth = System.getenv("SKIP_AUTH")?.toBoolean() ?: false
+    require(!skipAuth || System.getenv("ENV") == "local") {
+        "SKIP_AUTH=true is only allowed together with ENV=local (local development). Refusing to start."
+    }
 
     authentication {
-        jwt {
-            verifier(jwkProvider = azureAuthContext.jwkProvider) {
-                withIssuer(azureAuthContext.issuer)
-                withAudience(azureAuthContext.azureClientId)
-            }
+        if (skipAuth) {
+            // Local development only: inject a mock admin user, no JWT validation.
+            // Enabled by SKIP_AUTH=true. Never set this in deployed environments.
+            register(object : AuthenticationProvider(object : Config(SKIP_AUTH_PROVIDER) {}) {
+                override suspend fun onAuthenticate(context: AuthenticationContext) {
+                    context.principal(
+                        User(
+                            name = "Local Dev",
+                            email = Email("dev@localhost"),
+                            oid = Oid("local-dev-oid"),
+                            groups = listOf(System.getenv("ADMIN_GROUP") ?: "test_admin"),
+                        )
+                    )
+                }
+            })
+        } else {
+            jwt {
+                verifier(jwkProvider = azureAuthContext.jwkProvider) {
+                    withIssuer(azureAuthContext.issuer)
+                    withAudience(azureAuthContext.azureClientId)
+                }
 
-            validate { jwtCredential ->
-                User(
-                    name = jwtCredential.payload.getClaim("name")?.asString(),
-                    email = Email(jwtCredential.payload.getClaim("preferred_username").asString()),
-                    oid = Oid(jwtCredential.payload.getClaim("oid").asString()!!),
-                    groups = jwtCredential.payload.getClaim("groups").asList(String::class.java),
-                )
-            }
+                validate { jwtCredential ->
+                    User(
+                        name = jwtCredential.payload.getClaim("name")?.asString(),
+                        email = Email(jwtCredential.payload.getClaim("preferred_username").asString()),
+                        oid = Oid(jwtCredential.payload.getClaim("oid").asString()!!),
+                        groups = jwtCredential.payload.getClaim("groups").asList(String::class.java),
+                    )
+                }
 
-            challenge { _, _ ->
-                call.respond(HttpStatusCode.Unauthorized)
+                challenge { _, _ ->
+                    call.respond(HttpStatusCode.Unauthorized)
+                }
             }
         }
     }

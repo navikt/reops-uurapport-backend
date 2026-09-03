@@ -24,51 +24,38 @@ mvn clean install
 Default verdi på dev-logging er DEBUG, kan endres i [logback-dev.xml](app/src/main/resources/logback-dev.xml)
 
 ### Kjøre appen lokalt
-1. start docker-compose `docker-compose up` som starter opp:
-   - postgres database
-   - mock oauth2 server
-   - redis
-   - wonderwall (for å mocke kall til azure)
-2. sett miljøvariablene (eksempel lenger nede på verdier):
-   - AZURE_APP_CLIENT_ID
-   - AZURE_APP_WELL_KNOWN_URL
-   - ADMINS (komma-separert liste med e-poster for admin-tilgang)
-   - ADMIN_GROUP (Azure-gruppe ID for admin-tilgang, default 'test_admin' lokalt)
-   - DB_HOST
-   - DB_PORT
-   - DB_DATABASE
-   - DB_USERNAME
-   - DB_PASSWORD
-   - CORS_ALLOWED_ORIGIN
-   - PORT (default 8081)
-   - ENV
-3. se appen på `http://localhost:8787`
-4. optional, generer token for å kalle api-et:
-    ```
-    curl -X POST http://localhost:8080/issueissue/token \
-      -H 'Content-Type: application/x-www-form-urlencoded' \
-      -d 'grant_type=client_credentials' \
-      -d 'client_id=a11y' \
-      -d 'client_secret=ignored' \
-      -d 'scope=a11y' 
-    ```
-5. bruk token i kall til api-et:
-    ```
-      curl http://localhost:8787/api/teams \
-        -H "Authorization: Bearer <ditt-token>'    
-    ```
+
+1. start avhengigheter:
+   ```
+   docker-compose up
+   ```
+   Dette starter:
+   - postgres database (port 5432)
+   - mock oauth2 server (port 8080)
+
+2. start appen med `SKIP_AUTH=true` (hopper over JWT-validering og injiserer en mock-admin-bruker — kun gyldig sammen med `ENV=local`, appen nekter å starte ellers):
+   ```
+   SKIP_AUTH=true CORS_ALLOWED_ORIGIN=* DB_HOST=localhost DB_PORT=5432 DB_DATABASE=a11y DB_USERNAME=postgres DB_PASSWORD=a11y ADMIN_GROUP=test_admin ADMINS=carl@good.morning AZURE_APP_CLIENT_ID=a11y AZURE_APP_WELL_KNOWN_URL=http://localhost:8080/issueissue/.well-known/openid-configuration PORT=8787 ENV=local mvn exec:java -Dexec.mainClass=accessibility.reporting.tool.AppKt
+   ```
+
+3. API-et er tilgjengelig på `http://localhost:8787` — klart til å brukes fra frontend (`pnpm dev` i [reops-uurapport-frontend](../reops-uurapport-frontend))
+
+4. optional, test api-et direkte med token fra mock oauth2 (krever at appen kjøres UTEN `SKIP_AUTH`):
+   ```
+   curl -X POST http://localhost:8080/issueissue/token \
+     -H 'Content-Type: application/x-www-form-urlencoded' \
+     -d 'grant_type=client_credentials' \
+     -d 'client_id=a11y' \
+     -d 'client_secret=ignored' \
+     -d 'scope=a11y'
+
+   curl http://localhost:8787/api/teams \
+     -H "Authorization: Bearer <ditt-token>"
+   ```
+
 #### Example miljøvariabler for lokal kjøring
 ```
-ADMIN_GROUP=test_admin;ADMINS=carl@good.morning;AZURE_APP_CLIENT_ID=a11y;AZURE_APP_WELL_KNOWN_URL=http://localhost:8080/issueissue/.well-known/openid-configuration;CALL_LOGGING_LEVEL=DEBUG;CORS_ALLOWED_ORIGIN=*;DB_DATABASE=a11y;DB_HOST=localhost;DB_PASSWORD=a11y;DB_PORT=5432;DB_USERNAME=postgres;ENV=local;PORT=8787
-```
-
-##### CLI example
-```
-mvn clean install
-```
-
-```
-CORS_ALLOWED_ORIGIN=* DB_HOST=localhost DB_PORT=5432 DB_DATABASE=a11y DB_USERNAME=postgres DB_PASSWORD=a11y ADMIN_GROUP=test_admin ADMINS=carl@good.morning AZURE_APP_CLIENT_ID=a11y AZURE_APP_WELL_KNOWN_URL=http://localhost:8080/issueissue/.well-known/openid-configuration PORT=8787 ENV=local mvn exec:java -Dexec.mainClass=accessibility.reporting.tool.AppKt
+SKIP_AUTH=true;ADMIN_GROUP=test_admin;ADMINS=carl@good.morning;AZURE_APP_CLIENT_ID=a11y;AZURE_APP_WELL_KNOWN_URL=http://localhost:8080/issueissue/.well-known/openid-configuration;CALL_LOGGING_LEVEL=DEBUG;CORS_ALLOWED_ORIGIN=*;DB_DATABASE=a11y;DB_HOST=localhost;DB_PASSWORD=a11y;DB_PORT=5432;DB_USERNAME=postgres;ENV=local;PORT=8787
 ```
 
 ### Oppdatere apidocs
