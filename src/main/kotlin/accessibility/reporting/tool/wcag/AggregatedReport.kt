@@ -110,6 +110,7 @@ class AggregatedReport : Report {
         updateBy: User,
         changedCriteria: List<SuccessCriterionUpdate>?,
         organizationUnit: OrganizationUnit? = null,
+        isPartOfNavNo: Boolean? = null,
     ): AggregatedReport =
         AggregatedReport(
             Report(
@@ -124,7 +125,7 @@ class AggregatedReport : Report {
                 lastChanged = LocalDateTimeHelper.nowAtUtc(),
                 contributors = contributors,
                 lastUpdatedBy = updateBy.toAuthor(),
-                isPartOfNavNo = false,
+                isPartOfNavNo = isPartOfNavNo ?: this.isPartOfNavNo,
                 reportType = AGGREGATED,
                 notes = notes ?: this.notes
             ),
@@ -147,7 +148,8 @@ class AggregatedReport : Report {
                     status = updatedCriterion.status?.let { Status.valueOf(it) }?:currentCriterion.status,
                     breakingTheLaw = updatedCriterion.breakingTheLaw?:currentCriterion.breakingTheLaw,
                     lawDoesNotApply = updatedCriterion.lawDoesNotApply?:currentCriterion.lawDoesNotApply,
-                    tooHardToComply = updatedCriterion.tooHardToComply?:currentCriterion.tooHardToComply
+                    tooHardToComply = updatedCriterion.tooHardToComply?:currentCriterion.tooHardToComply,
+                    contentGroup = updatedCriterion.contentGroup?:currentCriterion.contentGroup
                 ).apply { this.wcagLevel = currentCriterion.wcagLevel }
             }
         }

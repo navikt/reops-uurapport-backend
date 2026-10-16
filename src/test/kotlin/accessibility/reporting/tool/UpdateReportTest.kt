@@ -336,6 +336,40 @@ class UpdateReportTest : TestApi() {
     }
 
     @Test
+    fun `updates url`() = withTestApi {
+        val newUrl = "https://new-url.test.no"
+
+        client.patchWithJwtUser(testUser, "api/reports/${dummyreport.reportId}") {
+            setBody("""{"url": "$newUrl"}""")
+            contentType(ContentType.Application.Json)
+        }.status shouldBe HttpStatusCode.OK
+
+        val getRequest = client.get("api/reports/${dummyreport.reportId}")
+        getRequest.status shouldBe HttpStatusCode.OK
+        val updatedReport = testApiObjectmapper.readTree(getRequest.bodyAsText())
+        updatedReport["url"].asText() shouldBe newUrl
+    }
+
+    @Test
+    fun `partial update does not clear other fields`() = withTestApi {
+        // Patch only descriptiveName — url, notes, author, team should all survive
+        client.patchWithJwtUser(testUser, "api/reports/${dummyreport.reportId}") {
+            setBody("""{"descriptiveName": "Only Name Changed"}""")
+            contentType(ContentType.Application.Json)
+        }.status shouldBe HttpStatusCode.OK
+
+        val getRequest = client.get("api/reports/${dummyreport.reportId}")
+        getRequest.status shouldBe HttpStatusCode.OK
+        val report = testApiObjectmapper.readTree(getRequest.bodyAsText())
+
+        report["descriptiveName"].asText() shouldBe "Only Name Changed"
+        report["url"].asText() shouldBe dummyreport.url
+        report["notes"].asText() shouldBe dummyreport.notes
+        report["author"]["email"].asText() shouldBe dummyreport.author.email
+        report["team"]["name"].asText() shouldBe dummyreport.organizationUnit!!.name
+    }
+
+    @Test
     fun `updates notes`() = withTestApi {
         val newNotes = "Here are some notes that are noted"
 

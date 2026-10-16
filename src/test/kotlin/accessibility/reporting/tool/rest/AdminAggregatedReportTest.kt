@@ -2,6 +2,7 @@ package accessibility.reporting.tool.rest
 
 import accessibility.reporting.tool.*
 import accessibility.reporting.tool.assert
+import accessibility.reporting.tool.wcag.AggregatedReport
 import accessibility.reporting.tool.wcag.OrganizationUnit
 import accessibility.reporting.tool.wcag.ReportContent
 import accessibility.reporting.tool.wcag.Status
@@ -540,6 +541,59 @@ class AdminAggregatedReportTest : TestApi() {
 
         @Test
         fun `Bad request if criterion data has errors`() = withTestApi {
+        }
+
+        @Test
+        fun `does not reset isPartOfNavNo on partial update`() = withTestApi {
+            val report = testAggregatedReports.first()
+
+            // Recreate the aggregated report with isPartOfNavNo = true
+            val reportWithFlag = AggregatedReport(
+                report.copy(isPartOfNavNo = true),
+                report.fromReports,
+                report.fromOrganizations
+            )
+            reportRepository.upsertReport(reportWithFlag)
+
+            // Patch only descriptiveName — isPartOfNavNo should not change
+            client.patchWithJwtUser(adminUser, "$adminRoute/reports/aggregated/${report.reportId}") {
+                setBodyWithJsonFields("descriptiveName" to "No Flag Reset")
+                contentType(ContentType.Application.Json)
+            }.status shouldBe OK
+
+            // The aggregated GET response doesn't serialize isPartOfNavNo,
+            // so assert against the domain object from the repository
+            val persisted = reportRepository.getReport<AggregatedReport>(report.reportId)!!
+            persisted.descriptiveName shouldBe "No Flag Reset"
+            persisted.isPartOfNavNo shouldBe true
+        }
+
+        @Test
+        fun `applies contentGroup on criterion update`() = withTestApi {
+            val report = testAggregatedReports.first()
+            val newContentGroup = "Test Content Group"
+
+            val body = """
+                {
+                   "successCriteria": [{
+                       "number": "1.3.1",
+                       "status": "COMPLIANT",
+                       "contentGroup": "$newContentGroup"
+                   }]
+                }
+            """.trimIndent()
+
+            client.patchWithJwtUser(adminUser, "$adminRoute/reports/aggregated/${report.reportId}") {
+                setBody(body)
+                contentType(ContentType.Application.Json)
+            }.status shouldBe OK
+
+            client.getWithJwtUser(adminUser, "api/reports/aggregated/${report.reportId}").assert {
+                status shouldBe OK
+                val criterion = json()["successCriteria"].toList()
+                    .find { it["number"].asText() == "1.3.1" }
+                criterion!!["contentGroup"].asText() shouldBe newContentGroup
+            }
         }
 
     }

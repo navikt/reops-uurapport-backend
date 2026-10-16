@@ -72,6 +72,7 @@ data class AggregatedReportUpdateRequest(
     val url: String? = null,
     val successCriteria: List<SuccessCriterionUpdate>? = null,
     val notes: String? = null,
-    val teamId: String? = null
+    val teamId: String? = null,
+    val isPartOfNavNo: Boolean? = null
 )
 

@@ -66,12 +66,13 @@ fun Route.jsonApiReports(reportRepository: ReportRepository, organizationReposit
                     reportRepository.getReport<Report>(id) ?: throw ResourceNotFoundException(type = "Report", id = id)
 
                 var updatedReport = existingReport.copy(
-                    descriptiveName = updates.descriptiveName,
-                    organizationUnit = updates.team,
-                    author = updates.author,
+                    descriptiveName = updates.descriptiveName ?: existingReport.descriptiveName,
+                    url = updates.url ?: existingReport.url,
+                    organizationUnit = updates.team ?: existingReport.organizationUnit,
+                    author = updates.author ?: existingReport.author,
                     lastChanged = LocalDateTimeHelper.nowAtUtc(),
                     lastUpdatedBy = call.user.toAuthor(),
-                    notes = updates.notes,
+                    notes = updates.notes ?: existingReport.notes,
                     isPartOfNavNo = updates.isPartOfNavNo ?: existingReport.isPartOfNavNo
                 )
 
@@ -126,11 +127,14 @@ fun Route.jsonApiReports(reportRepository: ReportRepository, organizationReposit
                 reportRepository.getReport<Report>(id) ?: throw ResourceNotFoundException(type = "Report", id = id)
 
             var updatedReport = existingReport.copy(
-                descriptiveName = updates.descriptiveName,
-                organizationUnit = updates.team,
-                author = updates.author,
+                descriptiveName = updates.descriptiveName ?: existingReport.descriptiveName,
+                url = updates.url ?: existingReport.url,
+                organizationUnit = updates.team ?: existingReport.organizationUnit,
+                author = updates.author ?: existingReport.author,
                 lastChanged = LocalDateTimeHelper.nowAtUtc(),
-                lastUpdatedBy = call.user.toAuthor()
+                lastUpdatedBy = call.user.toAuthor(),
+                notes = updates.notes ?: existingReport.notes,
+                isPartOfNavNo = updates.isPartOfNavNo ?: existingReport.isPartOfNavNo
             )
 
             updates.successCriteria?.let { pendingUpdateList ->
@@ -194,6 +198,7 @@ class FullReportWithAccessPolicy(
 
 data class ReportUpdate(
     val descriptiveName: String? = null,
+    val url: String? = null,
     val team: OrganizationUnit? = null,
     val author: Author? = null,
     val created: String? = null,

@@ -122,7 +122,8 @@ fun Route.aggregatedAdminRoutes(reportRepository: ReportRepository, organization
                     notes = updateReportRequest.notes,
                     updateBy = call.user,
                     changedCriteria = updateReportRequest.successCriteria,
-                    organizationUnit = organizationUnit
+                    organizationUnit = organizationUnit,
+                    isPartOfNavNo = updateReportRequest.isPartOfNavNo,
                 ) ?: throw ResourceNotFoundException(type = "Aggregated Report", id = id)
                 reportRepository.upsertReportReturning(updatedReport)
                 call.respond(HttpStatusCode.OK)
