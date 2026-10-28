@@ -15,6 +15,11 @@ fun Route.jsonapiadmin(reportRepository: ReportRepository, organizationRepositor
             organizationRepository.deleteOrgUnit(call.parameters["id"] ?: throw BadPathParameterException("id"))
             call.respond(HttpStatusCode.OK)
         }
+        delete("reports/{id}") {
+            val id = call.parameters["id"] ?: throw BadPathParameterException("id")
+            if (!reportRepository.deleteReport(id)) throw ResourceNotFoundException("report", id)
+            call.respond(HttpStatusCode.OK)
+        }
         get("reports/diagnostics") {
             val allReports = reportRepository.getReports<Report>()
             val reportsWithNullOrg = allReports.filter { it.organizationUnit == null }

@@ -114,6 +114,7 @@ fun Route.aggregatedAdminRoutes(reportRepository: ReportRepository, organization
                 val updateReportRequest = call.receive<AggregatedReportUpdateRequest>()
                 val id = call.parameters["id"] ?: throw IllegalArgumentException("Missing report {id}")
                 val originalReport = reportRepository.getReport<AggregatedReport>(id)
+                if (reportRepository.getArchiveInfo(id) != null) throw ReportArchivedException(id)
                 val organizationUnit = updateReportRequest.teamId?.let { organizationRepository.getOrganizationUnit(it) }
 
                 val updatedReport = originalReport?.updatedWith(

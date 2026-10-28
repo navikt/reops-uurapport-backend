@@ -64,18 +64,27 @@ fun Application.installAuthentication(azureAuthContext: AzureAuthContext) {
 
     authentication {
         if (skipAuth) {
-            // Local development only: inject a mock admin user, no JWT validation.
+            // Local development only: inject a mock user, no JWT validation.
             // Enabled by SKIP_AUTH=true. Never set this in deployed environments.
+            // SKIP_AUTH_ROLE=user (default: admin) logs in as a normal user instead of an admin.
+            val localUser = if (System.getenv("SKIP_AUTH_ROLE") == "user") {
+                User(
+                    name = "Local User",
+                    email = Email("dev-user@localhost"),
+                    oid = Oid("local-dev-user-oid"),
+                    groups = emptyList(),
+                )
+            } else {
+                User(
+                    name = "Local Dev",
+                    email = Email("dev@localhost"),
+                    oid = Oid("local-dev-oid"),
+                    groups = listOf(System.getenv("ADMIN_GROUP") ?: "test_admin"),
+                )
+            }
             register(object : AuthenticationProvider(object : Config(SKIP_AUTH_PROVIDER) {}) {
                 override suspend fun onAuthenticate(context: AuthenticationContext) {
-                    context.principal(
-                        User(
-                            name = "Local Dev",
-                            email = Email("dev@localhost"),
-                            oid = Oid("local-dev-oid"),
-                            groups = listOf(System.getenv("ADMIN_GROUP") ?: "test_admin"),
-                        )
-                    )
+                    context.principal(localUser)
                 }
             })
         } else {

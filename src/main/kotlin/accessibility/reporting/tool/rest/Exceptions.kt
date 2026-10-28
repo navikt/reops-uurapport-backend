@@ -20,3 +20,9 @@ class BadAggregatedReportRequestException(message: String) : RequestException(Ht
 
 class NotAdminUserException(route: String, userName: String) :
     RequestException(HttpStatusCode.Forbidden, "Error in request to $route: '$userName' is not admin")
+
+class NoWriteAccessException(reportId: String, userName: String) :
+    RequestException(HttpStatusCode.Forbidden, "'$userName' does not have write access to report $reportId")
+
+class ReportArchivedException(reportId: String) :
+    RequestException(HttpStatusCode.Conflict, "Report $reportId is archived and must be restored before it can be changed")

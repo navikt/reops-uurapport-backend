@@ -2,6 +2,7 @@ package accessibility.reporting.tool.rest
 
 import accessibility.reporting.tool.authentication.User
 import accessibility.reporting.tool.authentication.user
+import accessibility.reporting.tool.database.ArchiveInfo
 import accessibility.reporting.tool.database.ReportRepository
 import accessibility.reporting.tool.wcag.*
 import com.fasterxml.jackson.annotation.JsonFormat
@@ -20,14 +21,15 @@ fun Route.jsonApiAggregatedReports(reportRepository: ReportRepository) {
             val id = call.parameters["id"] ?: throw BadRequestException("Missing id")
             val report = reportRepository.getReport<AggregatedReport>(id)
                 ?: throw ResourceNotFoundException("report", id)
-            call.respond(AggregatedReportWithAccessPolicy(report,call.user))
+            call.respond(AggregatedReportWithAccessPolicy(report, call.user, reportRepository.getArchiveInfo(id)))
         }
     }
 }
 
 class AggregatedReportWithAccessPolicy(
     report: AggregatedReport,
-    user: User
+    user: User,
+    archiveInfo: ArchiveInfo? = null
 ) : ReportContent {
     override val reportId: String = report.reportId
     override val descriptiveName: String = report.descriptiveName ?: report.url
@@ -46,6 +48,7 @@ class AggregatedReportWithAccessPolicy(
     val notes: String = report.notes
     val fromTeams = report.fromOrganizations.toSet()
     val fromReports = report.fromReports
+    val archive: ArchiveInfoResponse? = archiveInfo?.let { ArchiveInfoResponse(it) }
     val validationWarnings: List<ValidationWarning> = buildValidationWarnings(report)
     
     private fun buildValidationWarnings(report: AggregatedReport): List<ValidationWarning> {

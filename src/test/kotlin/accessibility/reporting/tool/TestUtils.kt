@@ -126,6 +126,7 @@ open class TestApi {
     protected val organizationRepository = OrganizationRepository(database)
 
     fun cleanDb() {
+        database.update { queryOf("delete from admin_seen") }
         database.update { queryOf("delete from changelog") }
         database.update { queryOf("delete from report") }
         database.update { queryOf("delete from organization_unit") }

@@ -1,6 +1,6 @@
 # accessibility-reporting-tool
 
-App for rapportering av tilgjengelighet fra team på NAV sine sider. For api docs se /static/openapi
+App for rapportering av tilgjengelighet fra team på Nav sine sider. For api docs se /static/openapi
 
 ## Utvikling
 ### Forutsetninger
@@ -33,10 +33,16 @@ Default verdi på dev-logging er DEBUG, kan endres i [logback-dev.xml](app/src/m
    - postgres database (port 5432)
    - mock oauth2 server (port 8080)
 
-2. start appen med `SKIP_AUTH=true` (hopper over JWT-validering og injiserer en mock-admin-bruker — kun gyldig sammen med `ENV=local`, appen nekter å starte ellers):
+2. start appen med `SKIP_AUTH=true` (hopper over JWT-validering og injiserer en mock-bruker — kun gyldig sammen med `ENV=local`, appen nekter å starte ellers):
    ```
    SKIP_AUTH=true CORS_ALLOWED_ORIGIN=* DB_HOST=localhost DB_PORT=5432 DB_DATABASE=a11y DB_USERNAME=postgres DB_PASSWORD=a11y ADMIN_GROUP=test_admin ADMINS=carl@good.morning AZURE_APP_CLIENT_ID=a11y AZURE_APP_WELL_KNOWN_URL=http://localhost:8080/issueissue/.well-known/openid-configuration PORT=8787 ENV=local mvn exec:java -Dexec.mainClass=accessibility.reporting.tool.AppKt
    ```
+
+   Rolle styres med `SKIP_AUTH_ROLE`:
+   - ikke satt / `admin` – administrator (`dev@localhost`)
+   - `user` – vanlig bruker (`dev-user@localhost`), uten admin-gruppe. Legg til `SKIP_AUTH_ROLE=user` foran kommandoen over og start på nytt for å bytte.
+
+   **Testdata:** kjør `scripts/seed-local.sh` mens backend kjører som admin. Det oppretter «Lokalt team» (der vanlig bruker er medlem) og «Andre team» (der vanlig bruker ikke er medlem), fire rapporter og én arkivert rapport. Start deretter på nytt med `SKIP_AUTH_ROLE=user` for å se de samme dataene som vanlig bruker.
 
 3. API-et er tilgjengelig på `http://localhost:8787` — klart til å brukes fra frontend (`pnpm dev` i [reops-uurapport-frontend](../reops-uurapport-frontend))
 

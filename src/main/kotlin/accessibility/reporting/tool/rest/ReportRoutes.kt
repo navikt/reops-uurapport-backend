@@ -22,6 +22,12 @@ fun Route.jsonApiReports(reportRepository: ReportRepository, organizationReposit
         get {
             call.respond(reportRepository.getReports<ReportListItem>(ReportType.SINGLE))
         }
+        get("archived") {
+            val user = call.user
+            call.respond(reportRepository.getArchivedReports().map {
+                ArchivedReportListItem(it, canRestore = it.report.writeAccess(user))
+            })
+        }
         post("/new") {
             val report = call.receive<NewReport>()
             val organizationUnit = organizationRepository.getOrganizationUnit(report.teamId)
@@ -44,6 +50,25 @@ fun Route.jsonApiReports(reportRepository: ReportRepository, organizationReposit
             )
         }
         route("{id}") {
+            route("archive") {
+                post {
+                    val id = call.reportId
+                    val user = call.user
+                    val report = reportRepository.getReport<Report>(id) ?: throw ResourceNotFoundException("report", id)
+                    if (!report.writeAccess(user)) throw NoWriteAccessException(id, user.email.str())
+                    val reason = call.receiveNullable<ArchiveRequest>()?.reason?.trim()?.takeIf { it.isNotEmpty() }
+                    reportRepository.archiveReport(id, archivedBy = user.email.str(), reason = reason)
+                    call.respond(HttpStatusCode.OK)
+                }
+                delete {
+                    val id = call.reportId
+                    val user = call.user
+                    val report = reportRepository.getReport<Report>(id) ?: throw ResourceNotFoundException("report", id)
+                    if (!report.writeAccess(user)) throw NoWriteAccessException(id, user.email.str())
+                    reportRepository.unarchiveReport(id)
+                    call.respond(HttpStatusCode.OK)
+                }
+            }
             get {
                 val id = call.reportId
 
@@ -53,7 +78,7 @@ fun Route.jsonApiReports(reportRepository: ReportRepository, organizationReposit
                             throw BadRequestException("Rapport med $id er en samlerapport, tilgjengelig på api/reports/aggregated/$id")
                         }
                     }
-                    ?.toFullReportWithAccessPolicy(call.userOrNull)
+                    ?.toFullReportWithAccessPolicy(call.userOrNull, reportRepository.getArchiveInfo(id))
                     ?: throw ResourceNotFoundException("report", id)
 
                 call.respond(result)
@@ -64,6 +89,7 @@ fun Route.jsonApiReports(reportRepository: ReportRepository, organizationReposit
 
                 val existingReport =
                     reportRepository.getReport<Report>(id) ?: throw ResourceNotFoundException(type = "Report", id = id)
+                if (reportRepository.getArchiveInfo(id) != null) throw ReportArchivedException(id)
 
                 var updatedReport = existingReport.copy(
                     descriptiveName = updates.descriptiveName ?: existingReport.descriptiveName,
@@ -125,6 +151,7 @@ fun Route.jsonApiReports(reportRepository: ReportRepository, organizationReposit
 
             val existingReport =
                 reportRepository.getReport<Report>(id) ?: throw ResourceNotFoundException(type = "Report", id = id)
+            if (reportRepository.getArchiveInfo(id) != null) throw ReportArchivedException(id)
 
             var updatedReport = existingReport.copy(
                 descriptiveName = updates.descriptiveName ?: existingReport.descriptiveName,
@@ -175,6 +202,8 @@ fun Route.jsonApiReports(reportRepository: ReportRepository, organizationReposit
     }
 }
 
+class ArchiveRequest(val reason: String? = null)
+
 class NewReport(val name: String, val urlTilSiden: String, val teamId: String, val isPartOfNavNo: Boolean? = null)
 
 class FullReportWithAccessPolicy(
@@ -192,7 +221,8 @@ class FullReportWithAccessPolicy(
     val lastUpdatedBy: String,
     val isPartOfNavNo: Boolean,
     val notes: String,
-    val validationWarnings: List<ValidationWarning>
+    val validationWarnings: List<ValidationWarning>,
+    val archive: ArchiveInfoResponse? = null
 ) : ReportContent
 
 

@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.JsonNode
+import accessibility.reporting.tool.database.ArchiveInfo
+import accessibility.reporting.tool.database.ArchivedReport
 import java.time.LocalDateTime
 
 data class ValidationWarning(
@@ -40,4 +42,37 @@ class ReportListItem(
             reportType = jsonNode["reportType"]?.asText() ?: "SINGLE"
         )
     }
+}
+
+class ArchiveInfoResponse(
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+    val archivedAt: LocalDateTime,
+    val archivedBy: String,
+    val reason: String?
+) {
+    constructor(info: ArchiveInfo) : this(info.archivedAt, info.archivedBy, info.reason)
+}
+
+class ArchivedReportListItem(
+    @JsonProperty("id")
+    val reportId: String,
+    @JsonProperty("title")
+    val descriptiveName: String?,
+    val url: String,
+    val teamId: String,
+    val teamName: String,
+    val reportType: String,
+    val archive: ArchiveInfoResponse,
+    val canRestore: Boolean
+) {
+    constructor(archived: ArchivedReport, canRestore: Boolean) : this(
+        reportId = archived.report.reportId,
+        descriptiveName = archived.report.descriptiveName,
+        url = archived.report.url,
+        teamId = archived.report.organizationUnit?.id ?: "",
+        teamName = archived.report.organizationUnit?.name ?: "",
+        reportType = archived.report.reportType.name,
+        archive = ArchiveInfoResponse(archived.info),
+        canRestore = canRestore
+    )
 }

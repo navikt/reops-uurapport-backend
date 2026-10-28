@@ -44,7 +44,7 @@ class OrganizationRepository(database: Database) : BaseRepository(database) {
                 queryOf(
                     """select created, last_changed,report_data ->> 'version' as version, report_data 
                     |from report
-                    |where report_data -> 'organizationUnit' ->> 'id' = :id """.trimMargin(),
+                    |where archived_at is null and report_data -> 'organizationUnit' ->> 'id' = :id """.trimMargin(),
                     mapOf("id" to id)
                 ).map { row -> report<T>(row) }.asList
             }

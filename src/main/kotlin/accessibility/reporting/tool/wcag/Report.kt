@@ -3,6 +3,8 @@ package accessibility.reporting.tool.wcag
 import accessibility.reporting.tool.authentication.Admins
 import accessibility.reporting.tool.authentication.User
 import accessibility.reporting.tool.database.LocalDateTimeHelper
+import accessibility.reporting.tool.database.ArchiveInfo
+import accessibility.reporting.tool.rest.ArchiveInfoResponse
 import accessibility.reporting.tool.rest.FullReportWithAccessPolicy
 import accessibility.reporting.tool.rest.NewTeam
 import accessibility.reporting.tool.rest.TeamUpdate
@@ -136,7 +138,7 @@ open class Report(
         else -> false
     }
 
-    fun toFullReportWithAccessPolicy(user: User?): FullReportWithAccessPolicy {
+    fun toFullReportWithAccessPolicy(user: User?, archiveInfo: ArchiveInfo? = null): FullReportWithAccessPolicy {
         val warnings = mutableListOf<accessibility.reporting.tool.rest.ValidationWarning>()
         
         if (this.organizationUnit == null) {
@@ -162,7 +164,8 @@ open class Report(
             lastUpdatedBy = lastUpdatedBy?.email ?: author.email,
             isPartOfNavNo = this.isPartOfNavNo,
             notes = this.notes,
-            validationWarnings = warnings
+            validationWarnings = warnings,
+            archive = archiveInfo?.let { ArchiveInfoResponse(it) }
         )
     }
 }
