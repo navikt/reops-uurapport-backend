@@ -1,0 +1,168 @@
+name: "Deploy"
+run-name: "Deploy"
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "dev: deploy selected ref. prod: promote latest dev-* tag. prod-rebuild: rebuild latest prod-* tag on fresh base image"
+        required: true
+        type: choice
+        options:
+          - dev
+          - prod
+          - prod-rebuild
+        default: dev
+  schedule:
+    - cron: "0 3 * * *"
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  test:
+    if: github.event_name == 'push'
+    uses: ./.github/workflows/ci.yaml
+    permissions:
+      contents: read
+
+  build-dev:
+    name: "build dev image"
+    needs: test
+    if: >-
+      !cancelled() && needs.test.result != 'failure' && needs.test.result != 'cancelled' &&
+      (github.event_name != 'workflow_dispatch' || inputs.environment == 'dev')
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+      id-token: write
+    outputs:
+      image: ${{ steps.docker-build-push.outputs.image }}
+    steps:
+      - uses: actions/checkout@v6
+      - name: JDK
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+      - name: Build
+        run: mvn clean package -DskipTests --batch-mode --settings ./.mvn/settings.xml
+      - name: Build and push
+        id: docker-build-push
+        uses: nais/docker-build-push@v0
+        with:
+          team: team-researchops
+          identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
+          project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
+          pull: true
+          no_cache: ${{ github.event_name == 'schedule' }}
+
+  deploy-dev:
+    needs: build-dev
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v6
+      - name: Deploy to Dev
+        uses: nais/deploy/actions/deploy@v2
+        env:
+          CLUSTER: dev-gcp
+          RESOURCE: .nais/nais-dev.yaml
+          VAR: image=${{ needs.build-dev.outputs.image }}
+      - name: Create dev tag
+        if: github.event_name == 'push'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          TAG_NAME="dev-$(date -u +'%Y.%m.%d-%H%M%S')"
+          git tag -a "$TAG_NAME" -m "Development deployment of ${GITHUB_SHA}" -m "Image: ${{ needs.build-dev.outputs.image }}"
+          git push origin "$TAG_NAME"
+
+  promote-prod:
+    name: "promote latest dev image to prod"
+    if: github.event_name == 'workflow_dispatch' && inputs.environment == 'prod' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: prod
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+      - name: Resolve latest dev image
+        id: resolve
+        run: |
+          TAG=$(git tag -l 'dev-*' --sort=-creatordate | head -n 1)
+          if [ -z "$TAG" ]; then echo "No dev-* tag found"; exit 1; fi
+          IMAGE=$(git tag -l --format='%(contents:body)' "$TAG" | sed -n 's/^Image: //p')
+          if [ -z "$IMAGE" ]; then echo "No image in tag $TAG"; exit 1; fi
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "image=$IMAGE" >> "$GITHUB_OUTPUT"
+          echo "Promoting $IMAGE from $TAG"
+      - name: Deploy to Prod
+        uses: nais/deploy/actions/deploy@v2
+        env:
+          CLUSTER: prod-gcp
+          RESOURCE: .nais/nais-prod.yaml
+          VAR: image=${{ steps.resolve.outputs.image }}
+      - name: Create prod tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          TAG_NAME="prod-$(date -u +'%Y.%m.%d-%H%M%S')"
+          git tag -a "$TAG_NAME" "${{ steps.resolve.outputs.tag }}^{commit}" -m "Production deployment of $(git rev-parse "${{ steps.resolve.outputs.tag }}^{commit}")" -m "Image: ${{ steps.resolve.outputs.image }}"
+          git push origin "$TAG_NAME"
+
+  rebuild-prod:
+    name: "rebuild latest prod release on fresh base image"
+    if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.environment == 'prod-rebuild')
+    runs-on: ubuntu-latest
+    environment: prod
+    permissions:
+      packages: write
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+      - name: Check out latest prod tag
+        run: |
+          TAG=$(git tag -l 'prod-*' --sort=-creatordate | head -n 1)
+          if [ -z "$TAG" ]; then echo "No prod-* tag found, nothing to rebuild"; exit 1; fi
+          echo "Rebuilding $TAG"
+          git checkout --detach "$TAG"
+      - name: JDK
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+      - name: Build
+        run: mvn clean package -DskipTests --batch-mode --settings ./.mvn/settings.xml
+      - name: Build and push
+        id: docker-build-push
+        uses: nais/docker-build-push@v0
+        with:
+          team: team-researchops
+          identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
+          project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
+          pull: true
+          no_cache: true
+      - name: Deploy to Prod
+        uses: nais/deploy/actions/deploy@v2
+        env:
+          CLUSTER: prod-gcp
+          RESOURCE: .nais/nais-prod.yaml
+          VAR: image=${{ steps.docker-build-push.outputs.image }}

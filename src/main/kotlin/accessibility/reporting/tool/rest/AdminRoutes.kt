@@ -3,12 +3,17 @@ package accessibility.reporting.tool.rest
 import accessibility.reporting.tool.authentication.AdminCheck
 import accessibility.reporting.tool.database.OrganizationRepository
 import accessibility.reporting.tool.database.ReportRepository
+import accessibility.reporting.tool.database.SettingsRepository
 import accessibility.reporting.tool.wcag.*
 import io.ktor.http.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
-fun Route.jsonapiadmin(reportRepository: ReportRepository, organizationRepository: OrganizationRepository) {
+fun Route.jsonapiadmin(
+    reportRepository: ReportRepository,
+    organizationRepository: OrganizationRepository,
+    settingsRepository: SettingsRepository
+) {
     route("admin") {
         install(AdminCheck)
         delete("teams/{id}") {
@@ -37,6 +42,7 @@ fun Route.jsonapiadmin(reportRepository: ReportRepository, organizationRepositor
                 }
             ))
         }
+        deadlineAdminRoutes(settingsRepository)
         aggregatedAdminRoutes(reportRepository, organizationRepository)
     }
 }

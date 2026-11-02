@@ -7,6 +7,7 @@ import accessibility.reporting.tool.database.Flyway
 import accessibility.reporting.tool.database.OrganizationRepository
 import accessibility.reporting.tool.database.PostgresDatabase
 import accessibility.reporting.tool.database.ReportRepository
+import accessibility.reporting.tool.database.SettingsRepository
 import accessibility.reporting.tool.rest.*
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
@@ -149,7 +150,13 @@ fun Application.api(
                 jsonApiReports(organizationRepository = organizationRepository, reportRepository = reportRepository)
                 jsonapiteams(organizationRepository = organizationRepository)
                 jsonApiUsers(organizationRepository = organizationRepository, reportRepository = reportRepository)
-                jsonapiadmin(reportRepository = reportRepository, organizationRepository = organizationRepository)
+                val settingsRepository = SettingsRepository(reportRepository.database)
+                jsonApiDeadline(settingsRepository)
+                jsonapiadmin(
+                    reportRepository = reportRepository,
+                    organizationRepository = organizationRepository,
+                    settingsRepository = settingsRepository
+                )
                 jsonApiAggregatedReports(reportRepository = reportRepository)
             }
         }

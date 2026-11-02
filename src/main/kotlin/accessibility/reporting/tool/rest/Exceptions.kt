@@ -26,3 +26,5 @@ class NoWriteAccessException(reportId: String, userName: String) :
 
 class ReportArchivedException(reportId: String) :
     RequestException(HttpStatusCode.Conflict, "Report $reportId is archived and must be restored before it can be changed")
+
+class BadDeadlineException(message: String) : RequestException(HttpStatusCode.BadRequest, message)

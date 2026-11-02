@@ -1,0 +1,5 @@
+CREATE TABLE IF NOT EXISTS app_setting
+(
+    key   VARCHAR PRIMARY KEY,
+    value VARCHAR NOT NULL
+);
